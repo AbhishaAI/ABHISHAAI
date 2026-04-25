@@ -2996,7 +2996,7 @@ async function loadContent(force = false) {
         id: 'gh-' + Math.random().toString(36).substr(2, 9),
         title: _titleCase(f.name),
         category: "Library",
-        file: `https://raw.githubusercontent.com/abhishaai/ABHISHAAI/main/${f.path}`,
+        file: `https://raw.githubusercontent.com/abhishaai/ABHISHAAI/main/${f.path.split('/').map(encodeURIComponent).join('/')}`,
         uploadedAt: new Date().toISOString(),
         _github: true
       });
@@ -3009,7 +3009,7 @@ async function loadContent(force = false) {
         id: 'gh-t-' + Math.random().toString(36).substr(2, 9),
         title: _titleCase(f.name),
         category: "Live Test",
-        file: `https://cdn.jsdelivr.net/gh/abhishaai/ABHISHAAI@main/${f.path}`,
+        file: `https://cdn.jsdelivr.net/gh/abhishaai/ABHISHAAI@main/${f.path.split('/').map(encodeURIComponent).join('/')}`,
         duration: '—', questions: '—',
         uploadedAt: new Date().toISOString(),
         _github: true
