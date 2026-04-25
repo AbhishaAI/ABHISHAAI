@@ -1,0 +1,645 @@
+<body onload="initApp()">
+
+<div id="wm-tiled-bg" style="position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.25; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); transform: rotate(-25deg) scale(1.5); overflow: hidden; background-color: #fdfcf8;"></div>
+
+<div id="auth-overlay" style="position: fixed; inset: 0; z-index: 9999; background: #1b1b1b; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Georgia', serif; color: #b8860b; transition: 0.5s;">
+    <h1 style="font-size: 3rem; margin-bottom: 10px; letter-spacing: 5px;">ABHISHA AI</h1>
+    <p style="color: #fdf6e3; margin-bottom: 30px; font-size: 1.2rem;">ENTER CANDIDATE NAME</p>
+    <input type="text" id="name-input" placeholder="Type name here..." style="padding: 15px 25px; font-size: 1.5rem; border: 2px solid #b8860b; background: transparent; color: white; width: 350px; text-align: center; outline: none; margin-bottom: 20px;">
+    <button onclick="saveUser()" style="padding: 15px 50px; font-size: 1.2rem; background: #b8860b; color: #1b1b1b; border: none; font-weight: 900; cursor: pointer; letter-spacing: 2px;">START EXAM</button>
+      </div>
+</div>
+
+<div id="greet-gate" style="position: fixed; inset: 0; z-index: 9998; background: #1b1b1b; display: none; flex-direction: column; align-items: center; justify-content: center; font-family: 'Georgia', serif; text-align: center; color: #fdf6e3;">
+    <h1 id="welcome-msg" style="color: #b8860b; font-size: 2.5rem; margin-bottom: 20px; font-family: 'Times New Roman', serif; font-weight: 900; text-transform: uppercase;"></h1>
+    <p id="auth-motivational-quote" style="font-style: italic; font-size: 1.2rem; max-width: 80%; margin-bottom: 40px; color: #dcd1b3;"></p>
+    <button onclick="launchEngine()" style="padding: 15px 50px; font-size: 1.2rem; background: #b8860b; color: #1b1b1b; border: none; font-weight: 900; cursor: pointer; letter-spacing: 2px;">START YOUR TEST</button>
+</div>
+<div style="position: fixed; bottom: 20px; width: 100%; pointer-events: none; z-index: 1001; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box;">
+    <div style="pointer-events: auto;">
+        <button onclick="document.getElementById('contact-menu').toggleAttribute('hidden')" 
+                style="background: #1b1b1b; color: #fdf6e3; border: 2px solid #b8860b; padding: 12px 25px; cursor: pointer; font-weight: 900; font-family: 'Georgia', serif; letter-spacing: 1px;">
+            CONTACT US
+        </button>
+        <div id="contact-menu" hidden style="background: #1b1b1b; border: 2px solid #b8860b; padding: 10px; margin-top: 10px; border-radius: 5px;">
+            <a href="https://wa.me/6396801672" target="_blank" style="display: block; color: #25D366; text-decoration: none; font-weight: bold; margin-bottom: 10px;">WhatsApp</a>
+            <a href="https://t.me/Learner59" target="_blank" style="display: block; color: #0088cc; text-decoration: none; font-weight: bold;">Telegram</a>
+        </div>
+    </div>
+
+    <button id="focus-mode-btn" onclick="toggleFocusMode()" 
+            style="pointer-events: auto; background: #b8860b; color: #1b1b1b; border: none; padding: 12px 25px; cursor: pointer; font-weight: 900; font-family: 'Georgia', serif;">
+        FOCUS MODE
+    </button>
+</div>
+
+
+<header style="position: sticky; top: 0; z-index: 1000; background: #1b1b1b; color: #fdf6e3; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #b8860b; box-shadow: 0 5px 15px rgba(0,0,0,0.4); font-family: 'Georgia', serif;">
+    <div>
+        <div style="font-weight: 900; letter-spacing: 2px; font-size: 1.6rem; color: #b8860b;">ABHISHA AI</div>
+        <div style="font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; font-weight: bold;">
+            CANDIDATE: <span id="user-display-name">---</span>
+        </div>
+    </div>
+    <div style="display: flex; gap: 10px; font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: 900;">
+        <div style="background: rgba(184, 134, 11, 0.2); padding: 8px 14px; border-radius: 4px; border: 1px solid #b8860b;">ACC: <span id="rt-accuracy">100</span>%</div>
+        <div style="background: rgba(184, 134, 11, 0.2); padding: 8px 14px; border-radius: 4px; border: 1px solid #b8860b;">T: <span id="rt-timer">0</span>s</div>
+        <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 14px; border-radius: 4px; border: 1px solid #5d4037;">Q: <span id="rt-progress">1/100</span></div>
+    </div>
+</header>
+
+<div id="quote-strip" style="background: #fffdf5; padding: 18px; text-align: center; font-style: italic; border-bottom: 2px solid #e0d5b3; color: #4a3728; font-weight: 800; font-family: 'Georgia', serif; font-size: 1.4rem; line-height: 1.4;"></div>
+
+<main style="max-width: 950px; margin: 35px auto; padding: 0 25px; font-family: 'Georgia', serif; padding-bottom: 150px;">
+    <div style="background: #ffffff; border: 1px solid #dcd1b3; padding: 50px; box-shadow: 0 15px 50px rgba(0,0,0,0.1); border-radius: 5px; position: relative;">
+        <div id="q-text-display" style="font-size: 1.7rem; line-height: 1.8; font-weight: 900; color: #111; margin-bottom: 35px; padding-bottom: 20px; border-bottom: 2px solid #f0e6cc;"></div>
+        <div id="opt-grid-display" style="display: grid; gap: 20px;"></div>
+        <div id="analysis-panel" style="display: none; margin-top: 40px; padding: 30px; background: #fdfaf2; border-left: 10px solid #b8860b; border-radius: 0 5px 5px 0;">
+            <div style="font-weight: 900; color: #b8860b; margin-bottom: 12px; letter-spacing: 2px; font-size: 1.3rem;"> ABHISHA AI INSIGHTS</div>
+            <div id="analysis-text-content" style="font-size: 1.35rem; line-height: 1.9; color: #1b1b1b; font-weight: 500;"></div>
+            
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+        <button onclick="navigate(-1)" style="background: transparent; color: #1b1b1b; border: 3px solid #1b1b1b; padding: 18px 45px; cursor: pointer; font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; transition: 0.3s;">PREVIOUS</button>
+<button onclick="navigate(1)" style="background: #1b1b1b; color: #fdf6e3; border: none; padding: 18px 45px; cursor: pointer; font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">NEXT QUESTION</button>
+
+    </div>
+</main>
+<script>
+let qIdx = 0;
+let userAnswers = {};
+let performance = { correct: 0, attempted: 0, totalTime: 0, qStartTime: Date.now() };
+let totalSeconds = 0;
+let liveTimerInterval;
+
+const MOTIVATION = [
+
+    "The chair you sit on is a silent witness to your character. Do not betray its support with laziness.",
+    "LBSNAA is a cemetery for the excuses that died along the way.",
+    "Your current life is the price you pay for the life you want. Is the trade fair today?",
+    "The syllabus doesn't care about your feelings. It only responds to your attention.",
+    "An officer is a person who can make a decision when they have 40% of the facts and 100% of the responsibility.",
+    "Most people fail because they trade what they want most for what they want now.",
+    "The rank is a receipt for the boredom you were willing to endure.",
+    "You are not 'studying'; you are reconstructing your mind to think like a State.",
+    "The difference between a scholar and an administrator is the ability to act under pressure.",
+    "Despair is a luxury. As a future civil servant, you cannot afford it.",
+    "Mastery is the result of thousands of 'no's' to things that don't matter.",
+    "If you can't manage your own morning, how will you manage a district?",
+    "The exam is a filter. If it weren't hard, the title 'IAS' would mean nothing.",
+    "Knowledge is a weapon. The exam hall is the range. Are you a marksman or just making noise?",
+    "Your ego wants the praise; your soul needs the discipline. Listen to your soul.",
+    "The best strategy is the one you actually execute when you are tired.",
+    "Stop looking for 'hacks.' The only hack is sitting still until the job is done.",
+    "Solitude is the laboratory where greatness is synthesized.",
+    "You are currently auditioning for the role of a leader. Act like you want the part.",
+    "The clock is ticking, but the mind is the one that moves. Keep it steady.",
+    "The 'PDF list' doesn't have a column for 'almost tried' or 'unlucky.'",
+    "Pressure doesn't create character; it reveals it. What is being revealed today?",
+    "Every MCQ you guess on without logic is a gamble with your destiny.",
+    "Anxiety is just energy without a plan. Write the plan.",
+    "The world is full of intelligent people who lack the grit to finish what they start.",
+    "Your notes are not a hobby; they are the blueprint for your survival in the final stage.",
+    "Don't study until you get it right. Study until you can't get it wrong.",
+    "Success is a lonely road, but it leads to a crowded stage.",
+    "The pain of discipline is measured in grams; the pain of regret is measured in tons.",
+    "An officer doesn't complain about the wind; they adjust the sails.",
+    "The most dangerous distraction is the one that looks like 'productive' procrastination.",
+    "If you seek comfort, you have chosen the wrong profession.",
+    "The intellect is a servant to the will. Tell your intellect to focus.",
+    "You are the result of all the decisions you made when you didn't feel like working.",
+    "The 'Final List' is a work of fiction until you make it a fact.",
+    "A bureaucrat’s greatest tool is a clear head. Do not clutter it with social noise.",
+    "The journey is a mirror. If you don't like what you see, change who you are.",
+    "You don't need more time; you need more 'now.'",
+    "History doesn't remember the ones who 'tried.' It remembers the ones who stayed.",
+    "The syllabus is a mountain. You don't jump to the top; you crawl until you can walk.",
+    "Greatness is the ability to do the same thing every day without losing enthusiasm.",
+    "Your competition is sleeping. Or they are working harder than you. Both should worry you.",
+    "The 'IAS' suffix is earned in the hours between 2 AM and 5 AM.",
+    "A district's future depends on the quality of your current focus.",
+    "Do not let the smallness of your room limit the scale of your ambition.",
+    "Revision is the difference between a 'maybe' and a 'definitely.'",
+    "The brain is a muscle. If it doesn't hurt, you aren't lifting enough weight.",
+    "Your potential is a debt you owe to your future self. Pay it off.",
+    "Be a predator of knowledge. Hunt the concepts until they are yours.",
+    "The exam hall is the only place where silence is a roar of confidence.",
+    "Stop seeking validation from people who don't understand the sacrifice.",
+    "If you are the smartest person in your friend circle, find a new circle.",
+    "The greatest enemy of 'great' is 'good enough.'",
+    "Discipline is the bridge between a dream and a reality.",
+    "The library is the only place where you can talk to the greatest minds in history for free.",
+    "Every hour of focus is a brick in the wall of your future authority.",
+    "Don't be a spectator of your own life. Take the lead.",
+    "The world needs leaders who have mastered their own impulses.",
+    "Success is the ultimate revenge against those who doubted you.",
+    "The harder you work, the luckier you get on 'Option C'.",
+    "You are not a victim of the syllabus; you are its architect.",
+    "The only way out is through. Keep moving.",
+    "A moment of weakness can cost a year of progress. Stay vigilant.",
+    "The 'Blue Light' of the car is fueled by the 'Midnight Oil' of the lamp.",
+    "Intelligence without character is a disaster. Cultivate both.",
+    "Your life is a message to the world. Make sure it's inspiring.",
+    "Focus is the art of ignoring everything else.",
+    "The exam doesn't just test what you know; it tests who you are when you're tired.",
+    "Your background doesn't define your rank. Your backbone does.",
+    "An officer is a bridge between a problem and a solution.",
+    "The most important page is the one you are currently reading.",
+    "Don't pray for an easier exam; pray for a stronger mind.",
+    "The results of 2026 are being written in the silence of 2024.",
+    "Excellence is not a destination; it's a way of traveling.",
+    "Your mind is a sanctuary. Protect it from the poison of self-doubt.",
+    "The struggle is the proof that you are still in the race.",
+    "Victory belongs to the most persevering.",
+    "The academy is not a dream; it is a destination. Act like you have a ticket.",
+    "Your focus is your currency. Spend it wisely.",
+    "The depth of your preparation determines the height of your confidence.",
+    "Be so good that they can't ignore you.",
+    "The only limit to your impact is your imagination and your commitment.",
+    "A leader is one who knows the way, goes the way, and shows the way.",
+    "The power of 'yet' is the greatest tool in your arsenal.",
+    "Success is a habit, not a fluke.",
+    "Your struggle is the origin story of your success.",
+    "The world is waiting for your contribution. Don't be late.",
+    "Every sunset is a deadline. Every sunrise is an opportunity.",
+    "The 'Service' is not a job; it's a calling. Answer it.",
+    "Your legacy is the sum of your daily efforts.",
+    "Don't just count the pages; make the pages count.",
+    "The mind is a fire to be kindled, not a vessel to be filled.",
+    "Be the master of your fate and the captain of your soul.",
+    "The truth is simple: work harder than everyone else.",
+    "Your ambition is the only limit to your success.",
+    "The 'IAS' title is a heavy mantle. Start strengthening your shoulders now.",
+    "The quality of your work is the quality of your life.",
+    "Success is not for the chosen few; it is for the few who choose it.",
+    "The end of the day is the start of the dream. Rest well, then work again.",
+    "ABHISHA AI: Here to remind you that your only rival is your own reflection."
+
+
+  
+];
+
+function initApp() {
+    document.getElementById('auth-overlay').style.display = 'flex';
+    document.getElementById('auth-overlay').style.opacity = '1';
+
+    const wmContainer = document.getElementById('wm-tiled-bg');
+    wmContainer.innerHTML = ''; 
+    for(let i=0; i<450; i++) {
+        const div = document.createElement('div');
+        div.style.cssText = "font-size: 1rem; font-weight: 900; color: #222; padding: 25px; white-space: nowrap;";
+        div.innerText = "ABHISHA AI";
+        wmContainer.appendChild(div);
+    }
+}
+
+function saveUser() {
+    const val = document.getElementById('name-input').value;
+    if (val.trim() !== "") {
+        const name = val.trim().toUpperCase();
+        document.getElementById('user-display-name').innerText = name;
+        
+        document.getElementById('welcome-msg').innerHTML = `
+            <div style="opacity: 0.5; font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 5px; font-family: serif; color: #b8860b;">
+                WELCOME TO ABHISHA AI BY ABHISHEK PATHAK
+            </div>
+            <div style="font-family: 'Georgia', serif; color: #fdf6e3; font-size: 3.5rem; font-weight: 900; text-transform: uppercase;">
+                ${name}
+            </div>
+        `;
+        
+        document.getElementById('auth-motivational-quote').innerText = MOTIVATION[Math.floor(Math.random() * MOTIVATION.length)];
+        document.getElementById('auth-overlay').style.display = 'none';
+        document.getElementById('greet-gate').style.display = 'flex';
+    }
+}
+
+function launchEngine() {
+    document.getElementById('greet-gate').style.display = 'none';
+    liveTimerInterval = setInterval(() => {
+        totalSeconds++;
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        document.getElementById('rt-timer').innerText = `${m}m ${s}s`;
+    }, 1000);
+    renderFolio();
+}
+
+function renderFolio() {
+    if (typeof QUESTIONS === 'undefined' || QUESTIONS.length === 0) return;
+    
+    const qData = QUESTIONS[qIdx];
+    
+    // Update Stats
+    const acc = performance.attempted > 0 ? Math.round((performance.correct/performance.attempted)*100) : 100;
+    document.getElementById('rt-accuracy').innerText = acc;
+    document.getElementById('rt-progress').innerText = `${qIdx + 1}/${QUESTIONS.length}`;
+    document.getElementById('quote-strip').innerText = `"${MOTIVATION[qIdx % MOTIVATION.length]}"`;
+
+    // Display Question
+    document.getElementById('q-text-display').innerHTML = qData.question;
+    const grid = document.getElementById('opt-grid-display');
+    const panel = document.getElementById('analysis-panel');
+    grid.innerHTML = '';
+    panel.style.display = 'none';
+
+    // Solution Logic
+    if (userAnswers[qIdx] !== undefined) {
+        panel.style.display = 'block';
+        const liveScore = (performance.correct * 2) - (performance.attempted - performance.correct) * 0.66;
+        const doubtUrl = `https://t.me/Learner59?text=${encodeURIComponent("Doubt in Q" + (qIdx + 1) + ": " + qData.question.replace(/<[^>]*>/g, '').substring(0, 50))}`;
+        
+        document.getElementById('analysis-text-content').innerHTML = 
+            `<div style="font-weight:900; color:#2e7d32; margin-bottom:10px;">LIVE SCORE: ${liveScore.toFixed(2)}</div>` + 
+            qData.solution_text + 
+            `<br><button onclick="window.open('${doubtUrl}')" style="margin-top:15px; background:#0088cc; color:white; border:none; padding:10px; cursor:pointer; font-weight:900;">ASK DOUBT ABHISHA AI</button>`;
+    }
+
+    // Render Options
+    [1, 2, 3, 4].forEach(n => {
+        const optText = qData[`option_${n}`];
+        if(!optText) return;
+
+        const btn = document.createElement('button');
+        btn.style.cssText = "text-align: left; padding: 25px 35px; border: 2px solid #dcd1b3; background: white; cursor: pointer; font-size: 1.4rem; font-family: 'Georgia', serif; font-weight: 600; transition: 0.2s;";
+        btn.innerHTML = `<span style="font-weight: 900; margin-right: 20px; color: #b8860b;">${String.fromCharCode(64+n)}.</span> ${optText}`;
+        
+        if (userAnswers[qIdx] !== undefined) {
+            btn.disabled = true;
+            if (n == qData.answer) {
+                btn.style.background = "#e8f5e9";
+                btn.style.border = "4px solid #2e7d32";
+            }
+            if (n == userAnswers[qIdx] && n != qData.answer) {
+                btn.style.background = "#ffebee";
+                btn.style.border = "4px solid #c62828";
+            }
+        } else {
+            btn.onclick = () => {
+                userAnswers[qIdx] = n;
+                performance.attempted++;
+                if(n == qData.answer) performance.correct++;
+                performance.totalTime += Math.round((Date.now() - performance.qStartTime)/1000);
+                performance.qStartTime = Date.now();
+                renderFolio(); 
+            };
+        }
+        grid.appendChild(btn);
+    });
+}
+
+function navigate(dir) {
+    const newIdx = qIdx + dir;
+    
+    if(newIdx >= 0 && newIdx < QUESTIONS.length) {
+        qIdx = newIdx;
+        performance.qStartTime = Date.now();
+        renderFolio();
+        window.scrollTo(0, 0);
+    } else if (newIdx >= QUESTIONS.length) {
+        showFinalReport();
+    }
+}
+
+function toggleFocusMode() {
+    const header = document.querySelector('header');
+    const quote = document.getElementById('quote-strip');
+    const bg = document.getElementById('wm-tiled-bg');
+    const isHidden = header.style.display === 'none';
+    header.style.display = isHidden ? 'flex' : 'none';
+    quote.style.display = isHidden ? 'block' : 'none';
+    bg.style.opacity = isHidden ? '0.25' : '0.05';
+}
+
+function showFinalReport() {
+    const name = document.getElementById('user-display-name').innerText;
+    const finalScore = (performance.correct * 2) - (performance.attempted - performance.correct) * 0.66;
+    if (liveTimerInterval) clearInterval(liveTimerInterval);
+
+    document.body.innerHTML = `
+        <div style="text-align:center; padding:60px 20px; font-family: 'Georgia', serif; background:#fdfcf8; min-height:100vh; color: #1b1b1b;">
+            <h1 style="color:#b8860b; letter-spacing: 3px; font-size: 2.5rem;">YOUR UPSC COMPANION ABHISHA AI TEST REPORT</h1>
+            <h2 style="margin-bottom:30px;">CANDIDATE: ${name}</h2>
+            <div style="background: white; max-width: 650px; margin: 0 auto; padding: 40px; border: 1px solid #dcd1b3; box-shadow: 0 15px 35px rgba(0,0,0,0.08);">
+                <div style="font-size:2.5rem; font-weight: 900; margin-bottom: 10px;">FINAL SCORE: <span style="color:#2e7d32">${finalScore.toFixed(2)}</span></div>
+                <div style="font-size: 1.3rem; margin: 30px 0; border-top: 1.5px solid #b8860b; border-bottom: 1.5px solid #b8860b; padding: 25px 10px;">
+                    ALL THE BEST FOR <span style="color: #b8860b; font-weight: bold;">UPSC CSE PRELIMS 2026</span>!
+                </div>
+                <button onclick="location.reload()" style="background:#1b1b1b; color:#b8860b; padding:18px 60px; border:none; cursor:pointer; font-weight: 900;">RETAKE TEST</button>
+            </div>
+        </div>
+    `;
+}
+</script>
+
+<script>
+/* data from Jinja */
+const QUESTIONS = [{"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "45890", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1 and 2 only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1 and 3 only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e2 and 4 only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1, 2 and 4\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eConsider the following statements in respect of the digital rupee.............\u0026nbsp;\u003cstrong\u003e(UPSC Prelims 2024)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e1. It is a sovereign currency issued by the Reserve Bank of India (RBI) in alignment with its monetary policy.\u003c/p\u003e\r\n\r\n\u003cp\u003e2. It appears as a liability on the RBI\u0026rsquo;s balance sheet.\u003c/p\u003e\r\n\r\n\u003cp\u003e3. It is insured against inflation by its very design.\u003c/p\u003e\r\n\r\n\u003cp\u003e4. It is freely convertible against commercial bank money and cash.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e\u003cstrong\u003eExplanation : (D)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eThe digital rupee, like physical currency, is issued by the RBI and is aligned with its monetary policy. \u003cstrong\u003eSo, statement 1 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003eThe issuance of digital currency would be recorded as a liability on the RBI\u0026rsquo;s balance sheet, similar to physical currency. \u003cstrong\u003eSo, statement 2 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003eThe digital rupee, like physical currency, is not inherently insured against inflation. Inflation management is achieved through broader monetary policy measures, not through the design of the currency itself.\u003cstrong\u003e So, Statement 3 is incorrect.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003eThe digital rupee is designed to be freely convertible with commercial bank money and cash, maintaining the same value and usability. \u003cstrong\u003eSo, Statement 4 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u003cstrong\u003eTherefore, option (d) the correct answer.\u003c/strong\u003e\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "45891", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eBoth Statement-I and Statement-II are correct and Statement-II explains Statement-I\u0026nbsp;\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eBoth Statement-I and Statement-II are correct, but Statement-II does not explain Statement-I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eStatement-I is correct, but Statement II is incorrect\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eStatement-I is incorrect, but Statement-II is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eConsider the following statements : \u003cstrong\u003e(UPSC Prelims 2024)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement-I : India does not import apples from the United States of Amer ica.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement-II : In India, the law pro hibits the import of Genetically Mod ified food without the approval of the competent authority.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements ?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e\u003cstrong\u003eExplanation : (D)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003e\u0026nbsp;India removed the \u0026ldquo;retaliatory import duty\u0026rdquo; on US apples in September 2023. The import of US apples was a record of over 7 million boxes, which dropped to 50,000 boxes in the 2022\u0026ndash;23. It shows India import apples from USA. \u003cstrong\u003eHence, statement 1 is not correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u0026nbsp;In India, the Food Safety and Standards Act, of 2006, prohibits import, manufacture, use or sale of GM food without FSSAI\u0026rsquo;s approval. \u003cstrong\u003eHence, statement 2 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u003cstrong\u003e\u0026nbsp;Hence, option (d) is correct because statement-I is incorrect and statement-II is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "45892", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1 and 2 only\u0026nbsp;\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e2 and 3 only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1 and 3 only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1, 2 and 3\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eWith reference to the Digital India Land Records Modernisation Programme, consider the following statements : \u003cstrong\u003e(UPSC Prelims 2024)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e1. To implement the scheme, the Central Government provides 100% funding.\u003c/p\u003e\r\n\r\n\u003cp\u003e2. Under the Scheme, Cadastral Maps are digitised.\u003c/p\u003e\r\n\r\n\u003cp\u003e3. An initiative has been undertaken to transliterate the Records of Rights from local language to any of the languages recognized by the Constitution of India.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e\u003cstrong\u003eExplanation : (D)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003e\u0026nbsp;Digital India Land Records Modernization Programme (earlier National Land Record Modernization Programme-) was revamped as a Central Sector Scheme staring from 1st April, 2016 with 100% funding by the Centre. \u003cstrong\u003eSo, statement 1 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u0026nbsp;With 68.02 percent Cadastral Maps have been digitized with respect to Land Records under DILRM. \u003cstrong\u003eSo, statement 2 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003eThe Government with the technical support of Centre for Development of Advanced Computing (C-DAC) Pune, has undertaken an initiative to transliterate the Records of Rights available in local language to any of the 22 Schedule VIII languages of the Constitution. \u003cstrong\u003eSo, statement 3 is correct. \u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u003cstrong\u003e\u0026nbsp;Therefore, option (d) is the correct answer.\u003c/strong\u003e\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "45893", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1 only\u0026nbsp;\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e2 only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eBoth 1 and 2\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eNeither 1 nor 2\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eWith reference to the \u0026lsquo;Pradhan Mantri Surakshit Matritva Abhiyan\u0026rsquo;, consider the following statements : \u003cstrong\u003e(UPSC Prelims 2024)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e1. This scheme guarantees a minimum package of antenatal care services to women in their second and third trimesters of pregnancy and six months post-delivery health care service in any government health facility.\u003c/p\u003e\r\n\r\n\u003cp\u003e2. Under this scheme, private sector health care providers of certain specialities can volunteer to provide services at nearby government health facilities.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above is/ are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e\u003cstrong\u003eExplanation : (B)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003e\u0026nbsp;Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA) was launched to provide fixed-day assured, comprehensive and quality antenatal care universally to all pregnant women (2nd and 3rd trimester) on the 9th of every month.\u003c/li\u003e\r\n\t\u003cli\u003eThis scheme provides, a minimum package of antenatal care services to pregnant women in their 2nd/ 3rd trimesters at Government health facilities (PHCs/ CHCs, DHs/ urban health facilities etc) in both urban and rural areas. But the scheme does not provide Six months post delivery health care services in any government facilities. \u003cstrong\u003eHence, statement 1 is not correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u0026nbsp;The programme follows a systematic approach for engagement with the private sector which includes encouraging private practitioners to volunteer for the campaign for developing strategies for generating awareness and to give services at government health facilities. A National Portal for PMSMA and a mobile application have been developed to facilitate the involvement of doctors from the private/ voluntary sector. \u0026bull;\u003c/li\u003e\r\n\t\u003cli\u003eOBGY specialists/ Radiologists/physicians from the private sector would be encouraged to provide voluntary services at public health facilities where government sector practitioners are not available or inadequate. \u003cstrong\u003eHence, statement 2 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "45894", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1, 3 and 4\u0026nbsp;\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e2 and 3 only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e2 only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e1, 2 and 4\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eWith reference to the Pradhan Mantri Shram Yogi Maan-dhan (PM-SYM) Yojana, consider the following statements : \u003cstrong\u003e(UPSC Prelims 2024)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e1. The entry age group for enrolment in the scheme is 21 to 40 years.\u003c/p\u003e\r\n\r\n\u003cp\u003e2. Age specific contribution shall be made by the beneficiary.\u003c/p\u003e\r\n\r\n\u003cp\u003e3. Each subscriber under the scheme shall receive a minimum pension of 3,000 per month after attaining the age of 60 years.\u003c/p\u003e\r\n\r\n\u003cp\u003e4. Family pension is applicable to the spouse and unmarried daughters.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above is/ are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e\u003cstrong\u003eExplanation : (B)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e\u003cstrong\u003eEligibility criteria - a person should be:\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e(i) An unorganised worker\u003c/p\u003e\r\n\r\n\u003cp\u003e(ii) Entry age between 18 and 40 years\u003c/p\u003e\r\n\r\n\u003cp\u003e(iii) Monthly Income Rs 15000 or below.\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003e\u003cstrong\u003eSo, statement 1 is not correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u0026nbsp;It is a voluntary and contributory pension scheme on a 50:50 basis where prescribed age-specific contribution shall be made by the beneficiary and the matching contribution by the Central Government.\u0026nbsp;\u003c/li\u003e\r\n\t\u003cli\u003eSubscriber needs to contribute in the range of Rs. 55 - Rs. 200 depending on the entry age. \u003cstrong\u003eHence, statement 2 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u0026nbsp;Each subscriber would receive a minimum assured pension of Rs 3000/- per month after attaining the age of 60 years. \u003cstrong\u003eSo, statement 3 is correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u0026nbsp;If the beneficiary dies, the spouse of the beneficiary shall be entitled to receive 50% of the pension as family pension. Family pension is applicable only to spouses (and not unmarried daughters). \u003cstrong\u003eHence, statement 4 is not correct.\u003c/strong\u003e\u003c/li\u003e\r\n\t\u003cli\u003e\u003cstrong\u003eTherefore, option (b) is the correct answer.\u003c/strong\u003e\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48159", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly one\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly two\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly three\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eAll the four\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eWith reference to investments, consider the following:\u003cstrong\u003e\u0026nbsp; (UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Bonds\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Hedge Funds\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Stocks\u003c/p\u003e\r\n\r\n\u003cp\u003eIV. Venture Capital\u003c/p\u003e\r\n\r\n\u003cp\u003eHow many of the above are treated as Alternative Investment Funds?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (b) Only two\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eAlternative Investment Funds (AIFs) are investment vehicles that invest in assets other than traditional instruments like stocks and bonds.\u0026nbsp;\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003e\u003cstrong\u003eAmong the options:\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eBonds and Stocks are traditional investments, not AlFs.\u003c/li\u003e\r\n\t\u003cli\u003eHedge Funds and Venture Capital are categorized as AIFs under SEBI regulations in India.\u003c/li\u003e\r\n\t\u003cli\u003eHence, only two (Hedge Funds and Venture Capital) are treated as Alternative Investment Funds.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48160", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII, III and IV\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, III, IV and V\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and V\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eWhich of the following are the sources of income for the Reserve Bank of India? \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Buying and selling Government bonds\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Buying and selling foreign currency\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Pension fund management\u003c/p\u003e\r\n\r\n\u003cp\u003eIV. Lending to private companies\u003c/p\u003e\r\n\r\n\u003cp\u003eV. Printing and distributing currency notes\u003c/p\u003e\r\n\r\n\u003cp\u003eSelect the correct answer using the code given below:\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (d) I, II and V\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eBuying and selling Government bonds: RBI earns from interest on government securities it holds and also makes profits from buying/selling operations.\u003c/li\u003e\r\n\t\u003cli\u003eBuying and selling foreign currency: RBI manages forex reserves and earns income from them.\u003c/li\u003e\r\n\t\u003cli\u003ePrinting and distributing currency notes: Seigniorage (difference between cost of printing and face value) is a source of income.\u003c/li\u003e\r\n\t\u003cli\u003ePension fund management is not a primary function of RBI.\u0026nbsp;\u003c/li\u003e\r\n\t\u003cli\u003eLending to private companies is not directly done by the RBI.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48161", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI only\u0026nbsp;\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII only\u0026nbsp;\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth I and II\u0026nbsp;\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNiether I nor II\u0026nbsp;\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. The Reserve Bank of India mandates all the listed companies in India to submit a Business Responsibility and Sustainability Report (BRSR).\u003c/p\u003e\r\n\r\n\u003cp\u003eII. In India, a company submitting a BRSR makes disclosure in the report that are largely non-financial in nature.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above is/are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (b) II only\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eIt is SEBI (Securities and Exchange Board of India), not the RBI, that mandates the top 1000 listed companies (by market capitalization) to submit the BRSR.\u003c/li\u003e\r\n\t\u003cli\u003eBRSR includes non-financial disclosures related to environmental, social, and governance (ESG) aspects.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48162", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct and Statement II is the correct explanation of Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct but Statement II is not the correct explanation of Statement I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is correct but Statement II is incorrect\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is incorrect but Statement II is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I: In India, income from allied agricultural activities like poultry farming is exempted from income tax.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II: Income from rural agricultural land is exempt from tax under the provisions of the Income-tax Act, 1961.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (d) Statement I is incorrect but Statement II is correct\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eIncome from poultry farming is not considered agricultural income under the Income-tax Act, and therefore is not exempt from income tax.\u003c/li\u003e\r\n\t\u003cli\u003eIncome from agricultural operations on rural agricultural land is exempt from income tax as per Section 10(1) of the Income-tax Act, 1961.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "1", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48163", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eBoth Statement II and Statement III are correct and both of them explain Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eBoth Statement I and Statement II are correct and Statement I explains Statement II\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eOnly one of the Statements II and III is correct and that explains Statement I\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eNeither Statement II nor Statement III is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I: As regards returns from an investment in a company, generally, bondholders are considered to be relatively at lower risk than stockholders.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II: Bondholders are lenders to a company whereas stockholders are its owners.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement III: For repayment purpose, bondholders are prioritized over stockholders by a company.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e\u003cstrong\u003eExplanation: (a) Both Statement II and Statement III are correct and both of them explain Statement I\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: Bondholders face lower investment risk because they receive fixed interest payments and are repaid before shareholders in case of liquidation.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: Bondholders lend money to the company (debt), while stockholders own a part of the company (equity).\u003c/li\u003e\r\n\t\u003cli\u003eStatement III is correct: In the event of bankruptcy, bondholders have a legal right to be repaid before any assets are distributed to shareholders.\u003c/li\u003e\r\n\t\u003cli\u003eStatements II and III together explain why Statement I holds true.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "1", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48164", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eI and II only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eII and III only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eI and III only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eI, II and III\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eConsider the following statements:\u003cstrong\u003e (UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. India accounts for a very large portion of all equity option contracts traded globally thus exhibiting a great boom.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. India\u0026#39;s stock market has grown rapidly in the recent past even overtaking Hong Kong\u0026#39;s at some point of time.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. There is no regulatory body either to warn the small investors about the risks of options trading or to act on unregistered financial advisors in this regard.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e\u003cstrong\u003eExplanation: (a) I and II only\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: It is true that many small investors participate in options trading without fully understanding the associated risks.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: The IRRA platform launched by SEBI is designed to reduce risks for investors when technical glitches occur at brokers\u0026#39; end.\u003c/li\u003e\r\n\t\u003cli\u003eStatement III is incorrect: SEBI is the regulatory authority that actively works to caution investors and take action against unregistered financial advisors involved in fraudulent practices.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "1", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48165", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement II and Statement III are correct and both of them explain Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement II and Statement III are correct but only one of them explains Statement I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly one of the Statements II and III is correct and that explains Statement I\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNeither Statement II nor Statement III is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I: Circular economy reduces the emissions of greenhouse gases.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II: Circular economy reduces the use of raw materials as inputs.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement III: Circular economy reduces wastage in the production process.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (a) Both Statement II and Statement III are correct and both of them explain Statement I\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eThe circular economy promotes reuse, recycling, and regeneration of materials, which leads to:\u003c/li\u003e\r\n\t\u003cli\u003eReduced extraction and use of raw materials \u0026rarr; thus reducing emissions from mining, processing, and transportation (Statement II).\u003c/li\u003e\r\n\t\u003cli\u003eMinimized waste generation through improved production design and processes (Statement III).\u003c/li\u003e\r\n\t\u003cli\u003eBoth these factors contribute to lowering greenhouse gas emissions, thereby explaining Statement I.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "1", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48166", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII and III only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and III\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Capital receipts create a liability or cause a reduction in the assets of the Government.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Borrowings and disinvestment are capital receipts.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Interest received on loans creates a liability of the Government.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (a) I and II only\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: Capital receipts include borrowings, which create future repayment liabilities, or disinvestment, which reduces government-owned assets.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: Borrowings (like loans, market borrowing) and disinvestment (sale of public sector equity) are examples of capital receipts.\u003c/li\u003e\r\n\t\u003cli\u003eStatement III is incorrect: Interest received on loans is a revenue receipt, not a capital receipt, and it does not create a liability for the government; instead, it is income.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48167", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eOnly one\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eOnly two\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eAll the three\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eNone\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003eWith reference to India, consider the following pairs: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e\u003cimg height=\"394\" src=\"https://appx-content-v2.classx.co.in/paperimages/1763024016_1763024016227300_thump.jpg\" width=\"1087\" /\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eHow many of the above pairs are correctly matched?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cstyle type=\"text/css\"\u003e*{overflow-wrap: break-word;} img {max-width:100% !important}\r\n\u003c/style\u003e\r\n\u003cp\u003e\u003cstrong\u003eExplanation: (d) None\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eThe National Automotive Board does not fall under the Ministry of Commerce and Industry; it is associated with the Ministry of Heavy Industries.\u003c/li\u003e\r\n\t\u003cli\u003eThe Coir Board is under the Ministry of Micro, Small and Medium Enterprises, not the Ministry of Heavy Industries.\u003c/li\u003e\r\n\t\u003cli\u003eThe National Centre for Trade Information is under the Ministry of Commerce and Industry, not the Ministry of Micro, Small and Medium Enterprises.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48168", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly one\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly two\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly three\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eAll the four\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following activities:\u003cstrong\u003e (UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Production of crude oil\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Refining, storage and distribution of petroleum\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Marketing and sale of petroleum products\u003c/p\u003e\r\n\r\n\u003cp\u003eIV. Production of natural gas\u003c/p\u003e\r\n\r\n\u003cp\u003eHow many of the above activities are regulated by the Petroleum and Natural Gas Regulatory Board in our country?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (b) Only two\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eThe Petroleum and Natural Gas Regulatory Board (PNGRB) regulates refining, storage, and distribution of petroleum and marketing and sale of petroleum products.\u003c/li\u003e\r\n\t\u003cli\u003eIt does not regulate the production of crude oil or the production of natural gas; these are under the purview of other bodies like the Directorate General of Hydrocarbons (DGH) and Oil and Natural Gas Corporation (ONGC)\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48169", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u0026nbsp;I and II only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII and III only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and III\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eSuppose: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eThe revenue expenditure is \u20b980,000 crores and the revenue receipts of the Government are \u20b960,000 crores.\u003c/p\u003e\r\n\r\n\u003cp\u003eThe Government budget also shows borrowings of \u20b910,000 crores and interest payments of \u20b96,000 crores.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the following statements are correct?\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Revenue deficit is 20,000 crores.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Fiscal deficit is \u20b910,000 crores.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Primary deficit is \u20b94,000 crores.\u003c/p\u003e\r\n\r\n\u003cp\u003eSelect the correct answer using the code given below:\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (d) I, II and III\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eRevenue Expenditure = \u20b980,000 crores\u003c/li\u003e\r\n\t\u003cli\u003eRevenue Receipts = \u20b960,000 crores\u003c/li\u003e\r\n\t\u003cli\u003eBorrowings = \u20b910,000 crores\u003c/li\u003e\r\n\t\u003cli\u003eInterest Payments = 6,000 crores\u003c/li\u003e\r\n\t\u003cli\u003eStatement I: Revenue Deficit = Revenue Expenditure - Revenue Receipts\u0026nbsp;\u003c/li\u003e\r\n\t\u003cli\u003eTherefore, \u0026nbsp;\u20b980,000 crores - 60,000 crores = \u20b920,000 crores\u0026nbsp;\u003c/li\u003e\r\n\t\u003cli\u003eStatement II: Fiscal Deficit is the total borrowing requirement of the government.\u0026nbsp;\u003c/li\u003e\r\n\t\u003cli\u003eIn the given case, the borrowings are \u20b910,000 crores, which reflects the fiscal deficit.\u003c/li\u003e\r\n\t\u003cli\u003eStatement III: Primary Deficit = Fiscal Deficit - Interest Payments\u0026nbsp;\u003c/li\u003e\r\n\t\u003cli\u003eTherefore, \u0026nbsp;10,000 crores - \u20b96,000 crores = \u20b94,000 crores.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "1", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48170", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u20b948,500 crores\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u20b951,500 crores\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e58,500 crores\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNone of the above\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eA country\u0026#39;s fiscal deficit stands at \u20b950,000 crores.\u003c/p\u003e\r\n\r\n\u003cp\u003eIt is receiving 10,000 crores through non-debt creating capital receipts.\u003c/p\u003e\r\n\r\n\u003cp\u003eThe country\u0026#39;s interest liabilities are 1,500 crores.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhat is the gross primary deficit?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (a) 48,500 crores\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003ePrimary Deficit = Fiscal Deficit - Interest Payments\u003c/li\u003e\r\n\t\u003cli\u003ePrimary Deficit = 50,000 - 1,500 = 48,500 crores\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48171", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and III\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and IV\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, III and IV\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII, III and IV\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eWhich of the following statements with regard to recommendations of the 15th Finance Commission of India are correct? \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. It has recommended grants of 4,800 crores from the year 2022-23 to the year 2025-26 for incentivizing States to enhance educational outcomes.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. 45% of the net proceeds of Union taxes are to be shared with States.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. 45,000 crores are to be kept as performance-based incentive for all States for carrying out agricultural reforms.\u003c/p\u003e\r\n\r\n\u003cp\u003eIV. It reintroduced tax effort criteria to reward fiscal performance.\u003c/p\u003e\r\n\r\n\u003cp\u003eSelect the correct answer using the code given below :\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) I, III and IV\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eThe 15th Finance Commission recommended \u20b94,800 crores from 2022-23 to 2025-26 as a grant to incentivize States to improve educational outcomes.\u003c/li\u003e\r\n\t\u003cli\u003eThe Commission recommended 41% of the net proceeds of Union taxes to be shared with the States.\u003c/li\u003e\r\n\t\u003cli\u003eIt recommended \u20b945,000 crores as a performance-based incentive for States that implement agricultural reforms.\u003c/li\u003e\r\n\t\u003cli\u003eThe tax effort criterion was reintroduced to reward States for better fiscal performance.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48172", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII and III only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and III\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements in respect of the International Bank for Reconstruction and Development (IBRD): \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. It provides loans and guarantees to middle income countries.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. It works single-handedly to help developing countries to reduce poverty.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. It was established to help Europe rebuild after the World War II.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) I and III only\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eThe International Bank for Reconstruction and Development (IBRD), part of the World Bank Group, provides loans and guarantees to middle-income countries and creditworthy low-income countries.\u003c/li\u003e\r\n\t\u003cli\u003eThe IBRD does not work single-handedly; it collaborates with other World Bank Group institutions and international partners to reduce poverty and promote development.\u003c/li\u003e\r\n\t\u003cli\u003eThe IBRD was originally established in 1944 to assist in the reconstruction of Europe after World War II.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48173", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eIII only\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements in respect of RTGS and NEFT: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. In RTGS, the settlement time is instantaneous while in case of NEFT, it takes some time to settle payments.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. In RTGS, the customer is charged for inward transactions while that is not the case for NEFT.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Operating hours for RTGS are restricted on certain days while this is not true for NEFT.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above is/are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (a) I only\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eRTGS (Real Time Gross Settlement) processes transactions instantaneously or in real-time, while NEFT (National Electronic Funds Transfer) settles transactions in batches, so it takes some time.\u003c/li\u003e\r\n\t\u003cli\u003eCustomers are not charged for inward transactions in RTGS, and charges for NEFT vary but are typically applied to outward transactions, not inward.\u003c/li\u003e\r\n\t\u003cli\u003eBoth RTGS and NEFT have defined operating hours and are restricted on certain holidays or days.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48174", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly two\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly three\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly four\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eAll the five\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following countries: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. United Arab Emirates\u003c/p\u003e\r\n\r\n\u003cp\u003eII. France\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Germany\u003c/p\u003e\r\n\r\n\u003cp\u003eIV. Singapore\u003c/p\u003e\r\n\r\n\u003cp\u003eV. Bangladesh\u003c/p\u003e\r\n\r\n\u003cp\u003eHow many countries amongst the above are there other than India where international merchant payments are accepted under UPI ?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (b) Only three\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e1. United Arab Emirates (UAE) : UPI is accepted through partnerships like with Mashreq\u0026#39;s NEOPAY terminals.\u003c/p\u003e\r\n\r\n\u003cp\u003e2. Singapore : UPI linkage with Singapore\u0026#39;s PayNow has been operationalized for cross-border transactions.\u003c/p\u003e\r\n\r\n\u003cp\u003e3. France : UPI acceptance has been launched, particularly at Eiffel Tower and other merchant locations.\u003c/p\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48175", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII and III only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and III\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements about PM Surya Ghar Muft Bijli Yojana: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. It targets installation of one crore solar rooftop panels in the residential sector.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. The Ministry of New and Renewable Energy aims to impart training on installation, operation, maintenance, and repairs of solar rooftop systems at grassroots levels.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. It aims to create more than three lakhs skilled manpower through fresh skilling, and up-skilling, under scheme component of capacity building.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "316", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (d) I, II and III\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eAll three statements are correct:\u003c/li\u003e\r\n\t\u003cli\u003eStatement I: The PM Surya Ghar Muft Bijli Yojana aims to install one crore (10 million) rooftop solar panels in the residential sector by March 2027, with an outlay of \u20b975,021 crore.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II: The Ministry of New and Renewable Energy (MNRE) plans to provide training at the grassroots level.\u003c/li\u003e\r\n\t\u003cli\u003eStatement III: The scheme aims to create more than 3 lakh skilled personnel through fresh skilling and up-skilling programs, including at least 1 lakh Solar PV Technicians, to support the growing solar energy sector.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "436", "test_series_id": "19", "topic": ""}];
+const QUIZ_TITLE = "Economy PYQ Test 9";
+
+let current = 0;
+let answers = {};            // { questionId: "1", ... }
+let seconds = 0;
+let isQuiz = false;
+let timerInterval = null;
+
+const el = id => document.getElementById(id);
+
+/* format mm:ss */
+function fmt(s){
+  const m = Math.floor(s/60);
+  const sec = s%60;
+  return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+
+/* Timer */
+function startTimer(){
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    seconds++;
+    el("timer").textContent = fmt(seconds);
+  },1000);
+}
+
+/* initialize */
+function init(){
+  el("qtotal").textContent = QUESTIONS.length;
+  renderQuestion(0);
+  startTimer();
+  attachListeners();
+  buildPalette();
+  highlightPalette();
+}
+
+/* render question */
+function renderQuestion(i){
+  current = i;
+  const q = QUESTIONS[i];
+  el("qindex").textContent = i+1;
+  el("qtext").innerHTML = q.question || "";
+  el("marking").innerHTML = `Marking: <span style="color:var(--success)">+${Number(q.correct_score ?? 1)}</span> / <span style="color:var(--danger)">-${Number(q.negative_score ?? 0)}</span>`;
+  const opts = el("options");
+  opts.innerHTML = "";
+  el("explanation").style.display = "none";
+
+  const keys = ["option_1","option_2","option_3","option_4","option_5"];
+  keys.forEach((k, idx) => {
+    if(!q[k]) return;
+    const div = document.createElement("div");
+    div.className = "opt";
+    div.innerHTML = `<div class="custom-radio" aria-hidden="true"></div><div style="flex:1">${q[k]}</div>`;
+    // click anywhere on option selects
+    div.addEventListener("click", () => selectOption(q, idx+1, div));
+    opts.appendChild(div);
+    // if previously answered, mark selected
+    const qid = q.id ?? i;
+    if(answers[qid] === String(idx+1)) div.classList.add("selected");
+  });
+
+  highlightPalette();
+}
+
+/* selecting option */
+function selectOption(q, val, div){
+  const qid = q.id ?? current;
+  answers[qid] = String(val);
+  // clear previous selections visually
+  Array.from(el("options").children).forEach(o => o.className = "opt");
+  div.classList.add("selected");
+  // immediate feedback in quiz mode
+  if(isQuiz) showFeedback(q, val);
+  highlightPalette();
+}
+
+/* show correct/wrong coloring and explanation */
+function showFeedback(q, val){
+  const opts = Array.from(el("options").children);
+  opts.forEach((o, idx) => {
+    o.classList.remove("correct","wrong");
+    const idx1 = idx+1;
+    if(String(q.answer) === String(idx1)){
+      o.classList.add("correct");
+    } else if(String(val) === String(idx1)){
+      o.classList.add("wrong");
+    }
+  });
+  if(q.solution_text){
+    el("explanation").innerHTML = `<strong>Explanation:</strong> ${q.solution_text}`;
+    el("explanation").style.display = "block";
+  }
+}
+
+/* Submit flow */
+function submitQuiz(){
+  // stop timer
+  if(timerInterval) clearInterval(timerInterval);
+
+  let correct = 0, wrong = 0, totalMarks = 0;
+  QUESTIONS.forEach((q, i) => {
+    const qid = q.id ?? i;
+    const ans = answers[qid];
+    const isCorrect = ans && String(ans) === String(q.answer);
+    if(isCorrect) correct++;
+    else if(ans) wrong++;
+    const cs = Number(q.correct_score ?? 1);
+    const ns = Number(q.negative_score ?? 0);
+    if(isCorrect) totalMarks += cs;
+    else if(ans) totalMarks -= ns;
+  });
+
+  const attempted = Object.keys(answers).length;
+  const unattempted = QUESTIONS.length - attempted;
+  const accuracy = attempted ? ((correct/attempted) * 100).toFixed(1) : "0.0";
+
+  // build review HTML
+  let reviewHTML = `<div class="card"><h3 style="color:var(--accent);margin:0 0 10px">Results Summary</h3>
+    <div class="stats">
+      <div class="stat"><h4>Correct</h4><p>${correct}</p></div>
+      <div class="stat"><h4>Wrong</h4><p>${wrong}</p></div>
+      <div class="stat"><h4>Unattempted</h4><p>${unattempted}</p></div>
+      <div class="stat"><h4>Accuracy</h4><p>${accuracy}%</p></div>
+      <div class="stat"><h4>Total Marks</h4><p>${totalMarks}</p></div>
+      <div class="stat"><h4>Time</h4><p>${fmt(seconds)}</p></div>
+    </div></div>`;
+
+  QUESTIONS.forEach((q,i)=>{
+    const qid = q.id ?? i;
+    const ans = answers[qid];
+    const isCorrect = ans && String(ans) === String(q.answer);
+    const cs = Number(q.correct_score ?? 1);
+    const ns = Number(q.negative_score ?? 0);
+
+    reviewHTML += `<div class="card"><div style="font-weight:700;margin-bottom:8px">Q${i+1}: ${q.question}</div>`;
+    ["option_1","option_2","option_3","option_4","option_5"].forEach((k,j)=>{
+      if(!q[k]) return;
+      const idx = j+1;
+      const isOptCorrect = String(idx) === String(q.answer);
+      const isUser = ans && String(idx) === String(ans);
+      let style = "padding:8px 10px;margin:6px 0;border-radius:8px;";
+      if(isOptCorrect) style += "border:2px solid var(--success);background:rgba(31,158,90,0.12);";
+      else if(isUser && !isOptCorrect) style += "border:2px solid var(--danger);background:rgba(200,45,63,0.12);";
+      else style += "border:1px solid #eee;background:#fafbfd;";
+      reviewHTML += `<div style="${style}">${q[k]}</div>`;
+    });
+    const score = isCorrect ? `<span style="color:var(--success)">+${cs}</span>` : (ans ? `<span style="color:var(--danger)">-${ns}</span>` : `<span style="color:var(--muted)">0</span>`);
+    reviewHTML += `<div style="margin-top:8px"><strong>Score:</strong> ${score}</div>`;
+    if(q.solution_text) reviewHTML += `<div class="explanation" style="display:block;margin-top:8px"><strong>Explanation:</strong> ${q.solution_text}</div>`;
+    reviewHTML += `</div>`;
+  });
+
+  el("results").innerHTML = reviewHTML;
+  el("results").style.display = "block";
+  el("quizCard").style.display = "none";
+  // hide bottom nav
+  el("floatBar").style.display = "none";
+
+  // replace header controls with results controls (Re-Attempt, Download, Print)
+  const header = el("headerControls");
+  header.innerHTML = "";
+  const left = document.createElement("div");
+  left.style.display = "flex";
+  left.style.alignItems = "center";
+  left.style.gap = "10px";
+  const title = document.createElement("h1");
+  title.textContent = QUIZ_TITLE;
+  left.appendChild(title);
+
+  const right = document.createElement("div");
+  right.style.display = "flex";
+  right.style.alignItems = "center";
+  right.style.gap = "10px";
+
+  const retry = document.createElement("button");
+  retry.className = "btn";
+  retry.textContent = "Re-Attempt";
+  retry.onclick = ()=> location.reload();
+
+  const dl = document.createElement("button");
+  dl.className = "btn";
+  dl.textContent = "Download";
+  dl.onclick = downloadResults;
+
+  const pr = document.createElement("button");
+  pr.className = "btn";
+  pr.textContent = "Print";
+  pr.onclick = ()=> window.print();
+
+  right.appendChild(retry);
+  right.appendChild(dl);
+  right.appendChild(pr);
+
+  header.appendChild(left);
+  header.appendChild(right);
+}
+
+/* Download current results page as .html named after quiz title */
+function downloadResults(){
+  const head = document.head.outerHTML;
+  const resultsHtml = el("results").outerHTML;
+  const pageHtml = `<!doctype html><html>${head}<body><div style="padding:20px;max-width:1000px;margin:auto">${resultsHtml}</div></body></html>`;
+  const blob = new Blob([pageHtml], {type:"text/html"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const safe = String(QUIZ_TITLE).replace(/[^a-z0-9]/gi,"_");
+  a.href = url;
+  a.download = `${safe}_results.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* attach DOM listeners */
+function attachListeners(){
+  el("nextBtn").addEventListener("click", ()=> { if(current < QUESTIONS.length-1) renderQuestion(current+1); });
+  el("prevBtn").addEventListener("click", ()=> { if(current > 0) renderQuestion(current-1); });
+  el("clearBtn").addEventListener("click", ()=> { delete answers[QUESTIONS[current].id ?? current]; renderQuestion(current); highlightPalette(); });
+
+  el("paletteBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    togglePalette();
+  });
+
+  el("submitBtn").addEventListener("click", ()=>{
+    const attempted = Object.keys(answers).length;
+    el("submitMsg").textContent = `You attempted ${attempted} of ${QUESTIONS.length}. Submit?`;
+    el("submitModal").style.display = "flex";
+  });
+
+  el("cancelSubmit").addEventListener("click", ()=> el("submitModal").style.display = "none");
+  el("confirmSubmit").addEventListener("click", ()=> { el("submitModal").style.display = "none"; submitQuiz(); });
+
+  el("modeToggle").addEventListener("click", ()=> {
+    el("modeToggle").classList.toggle("active");
+    isQuiz = el("modeToggle").classList.contains("active");
+    // re-render the current question so immediate behavior toggles
+    renderQuestion(current);
+  });
+
+  // close palette when clicking outside
+  document.addEventListener("click", (ev) => {
+    const pal = el("palette");
+    if(!pal) return;
+    if(pal.style.display === "flex"){
+      const viewBtn = el("paletteBtn");
+      if(ev.target !== pal && !pal.contains(ev.target) && ev.target !== viewBtn && !viewBtn.contains(ev.target)){
+        pal.style.display = "none";
+      }
+    }
+  });
+}
+
+/* Build palette buttons + summary */
+function buildPalette(){
+  const pal = el("palette");
+  pal.innerHTML = "";
+  for(let i=0;i<QUESTIONS.length;i++){
+    const b = document.createElement("button");
+    b.className = "qbtn";
+    b.textContent = i+1;
+    b.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      renderQuestion(i);
+      pal.style.display = "none";
+    });
+    pal.appendChild(b);
+  }
+  const summary = document.createElement("div");
+  summary.id = "palette-summary";
+  summary.style.marginTop = "8px";
+  pal.appendChild(summary);
+  highlightPalette();
+}
+
+/* color palette buttons and show summary */
+function highlightPalette(){
+  const pal = el("palette");
+  if(!pal) return;
+  const total = QUESTIONS.length;
+  const attempted = Object.keys(answers).length;
+  const notAttempted = total - attempted;
+  Array.from(pal.children).forEach((child, idx) => {
+    // skip summary
+    if(child.id === "palette-summary") return;
+    child.classList.remove("answered","current");
+    const qid = QUESTIONS[idx].id ?? idx;
+    if(idx === current) child.classList.add("current");
+    else if(answers[qid]) child.classList.add("answered");
+  });
+  const summary = el("palette-summary");
+  if(summary) summary.textContent = `Total: ${total} | Attempted: ${attempted} | Not Attempted: ${notAttempted}`;
+}
+
+/* toggle palette visibility */
+function togglePalette(){
+  const pal = el("palette");
+  if(pal.style.display === "flex") pal.style.display = "none";
+  else { pal.style.display = "flex"; highlightPalette(); }
+}
+
+/* start */
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
