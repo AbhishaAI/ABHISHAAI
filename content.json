@@ -1,0 +1,17 @@
+{
+  "notice": "Abhisha Library AUTO-SYNCS from /library/ folder on GitHub. Live Test Ecosystem AUTO-SYNCS from /tests/ folder. Push a PDF into /library/<section>/<sub>/ or an HTML test into /tests/<subject>/ and it appears automatically — no need to edit this file. This file only keeps daily quotes.",
+  "pdfs": [],
+  "tests": [],
+  "quotes": [
+    "You don't have to be great to start, but you have to start to be great.",
+    "The expert in anything was once a beginner.",
+    "Discipline is choosing between what you want now and what you want most.",
+    "Hard work beats talent when talent doesn't work hard.",
+    "Success is the sum of small efforts repeated day in and day out.",
+    "Don't watch the clock; do what it does. Keep going.",
+    "The future depends on what you do today. — Mahatma Gandhi",
+    "Ek din mein 1% better — that's the ABHISHA way.",
+    "Consistency beats intensity. Daily reading > weekend marathons.",
+    "Your NCERT today is your answer-writing gold tomorrow."
+  ]
+}
