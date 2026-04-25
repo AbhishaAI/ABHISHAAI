@@ -2982,72 +2982,55 @@ async function fetchGithubLibrary(force = false) {
 
 async function loadContent(force = false) {
   try {
-    // 1) Seedha backend se scan data uthao
-    const res = await fetch('https://abhishaal12-abhishaai-backend.hf.space/api/scan_all');
+    const res = await fetch('https://abhishaai12-abhishaai-backend.hf.space/api/scan_all');
     const result = await res.json();
-
     if (result.status !== "success") throw new Error("Backend error");
 
     const rawData = result.data;
     const pdfs = [], tests = [];
 
-    // 2) Library ki PDFs ko list mein daalo
     (rawData.library || []).forEach(f => {
-      const nameLower = f.name.toLowerCase();
+      const nameLower = (f.name || '').toLowerCase();
       if (!nameLower.endsWith('.pdf')) return;
-      
       pdfs.push({
         id: 'gh-' + Math.random().toString(36).substr(2, 9),
         title: _titleCase(f.name),
         category: "Library",
-        file: `https://raw.githubusercontent.com/AbhishaaI/ABHISHA_AI/main/${f.path}`,
+        file: `https://raw.githubusercontent.com/abhishaai/ABHISHAAI/main/${f.path}`,
         uploadedAt: new Date().toISOString(),
         _github: true
       });
     });
 
-    // 3) Tests ki HTML files ko list mein daalo
     (rawData.tests || []).forEach(f => {
-      const nameLower = f.name.toLowerCase();
+      const nameLower = (f.name || '').toLowerCase();
       if (!nameLower.endsWith('.html') && !nameLower.endsWith('.htm')) return;
-      
       tests.push({
         id: 'gh-t-' + Math.random().toString(36).substr(2, 9),
         title: _titleCase(f.name),
         category: "Live Test",
-        file: `https://cdn.jsdelivr.net/gh/AbhishaaI/ABHISHA_AI@main/${f.path}`,
+        file: `https://cdn.jsdelivr.net/gh/abhishaai/ABHISHAAI@main/${f.path}`,
         duration: '—', questions: '—',
         uploadedAt: new Date().toISOString(),
         _github: true
       });
     });
 
-    // 4) Website ke main variable (CONTENT) ko update karo
     CONTENT = {
-      pdfs, 
-      tests,
+      pdfs, tests,
       quotes: [
         "Safar thoda kathin hai, par hausla buland hai.",
         "UPSC 2026: Success is the only option.",
         "Padhai aisi karo ki log kahein, selection toh pakka hai!"
       ]
     };
-
     console.log("Auto-Load Success: Found " + (pdfs.length + tests.length) + " files.");
-    
-    // Notifications refresh karo
     refreshNotifBadge();
-
   } catch (e) {
     console.error('Automation failed:', e.message);
-    // Error aane par purana khali structure rakho taaki site crash na ho
     CONTENT = { pdfs: [], tests: [], quotes: [] };
   }
-}
-
-
-
-}
+  }
 
 /* ---------------- Notifications ---------------- */
 function getSeen() { return loadJSON(CONFIG.storageKeys.seenContent, { ids: [] }); }
