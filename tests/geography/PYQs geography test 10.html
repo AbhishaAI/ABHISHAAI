@@ -1,0 +1,643 @@
+<body onload="initApp()">
+
+<div id="wm-tiled-bg" style="position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.25; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); transform: rotate(-25deg) scale(1.5); overflow: hidden; background-color: #fdfcf8;"></div>
+
+<div id="auth-overlay" style="position: fixed; inset: 0; z-index: 9999; background: #1b1b1b; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Georgia', serif; color: #b8860b; transition: 0.5s;">
+    <h1 style="font-size: 3rem; margin-bottom: 10px; letter-spacing: 5px;">ABHISHA AI</h1>
+    <p style="color: #fdf6e3; margin-bottom: 30px; font-size: 1.2rem;">ENTER CANDIDATE NAME</p>
+    <input type="text" id="name-input" placeholder="Type name here..." style="padding: 15px 25px; font-size: 1.5rem; border: 2px solid #b8860b; background: transparent; color: white; width: 350px; text-align: center; outline: none; margin-bottom: 20px;">
+    <button onclick="saveUser()" style="padding: 15px 50px; font-size: 1.2rem; background: #b8860b; color: #1b1b1b; border: none; font-weight: 900; cursor: pointer; letter-spacing: 2px;">START EXAM</button>
+      </div>
+</div>
+
+<div id="greet-gate" style="position: fixed; inset: 0; z-index: 9998; background: #1b1b1b; display: none; flex-direction: column; align-items: center; justify-content: center; font-family: 'Georgia', serif; text-align: center; color: #fdf6e3;">
+    <h1 id="welcome-msg" style="color: #b8860b; font-size: 2.5rem; margin-bottom: 20px; font-family: 'Times New Roman', serif; font-weight: 900; text-transform: uppercase;"></h1>
+    <p id="auth-motivational-quote" style="font-style: italic; font-size: 1.2rem; max-width: 80%; margin-bottom: 40px; color: #dcd1b3;"></p>
+    <button onclick="launchEngine()" style="padding: 15px 50px; font-size: 1.2rem; background: #b8860b; color: #1b1b1b; border: none; font-weight: 900; cursor: pointer; letter-spacing: 2px;">START YOUR TEST</button>
+</div>
+<div style="position: fixed; bottom: 20px; width: 100%; pointer-events: none; z-index: 1001; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box;">
+    <div style="pointer-events: auto;">
+        <button onclick="document.getElementById('contact-menu').toggleAttribute('hidden')" 
+                style="background: #1b1b1b; color: #fdf6e3; border: 2px solid #b8860b; padding: 12px 25px; cursor: pointer; font-weight: 900; font-family: 'Georgia', serif; letter-spacing: 1px;">
+            CONTACT US
+        </button>
+        <div id="contact-menu" hidden style="background: #1b1b1b; border: 2px solid #b8860b; padding: 10px; margin-top: 10px; border-radius: 5px;">
+            <a href="https://wa.me/6396801672" target="_blank" style="display: block; color: #25D366; text-decoration: none; font-weight: bold; margin-bottom: 10px;">WhatsApp</a>
+            <a href="https://t.me/Learner59" target="_blank" style="display: block; color: #0088cc; text-decoration: none; font-weight: bold;">Telegram</a>
+        </div>
+    </div>
+
+    <button id="focus-mode-btn" onclick="toggleFocusMode()" 
+            style="pointer-events: auto; background: #b8860b; color: #1b1b1b; border: none; padding: 12px 25px; cursor: pointer; font-weight: 900; font-family: 'Georgia', serif;">
+        FOCUS MODE
+    </button>
+</div>
+
+
+<header style="position: sticky; top: 0; z-index: 1000; background: #1b1b1b; color: #fdf6e3; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #b8860b; box-shadow: 0 5px 15px rgba(0,0,0,0.4); font-family: 'Georgia', serif;">
+    <div>
+        <div style="font-weight: 900; letter-spacing: 2px; font-size: 1.6rem; color: #b8860b;">ABHISHA AI</div>
+        <div style="font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; font-weight: bold;">
+            CANDIDATE: <span id="user-display-name">---</span>
+        </div>
+    </div>
+    <div style="display: flex; gap: 10px; font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: 900;">
+        <div style="background: rgba(184, 134, 11, 0.2); padding: 8px 14px; border-radius: 4px; border: 1px solid #b8860b;">ACC: <span id="rt-accuracy">100</span>%</div>
+        <div style="background: rgba(184, 134, 11, 0.2); padding: 8px 14px; border-radius: 4px; border: 1px solid #b8860b;">T: <span id="rt-timer">0</span>s</div>
+        <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 14px; border-radius: 4px; border: 1px solid #5d4037;">Q: <span id="rt-progress">1/100</span></div>
+    </div>
+</header>
+
+<div id="quote-strip" style="background: #fffdf5; padding: 18px; text-align: center; font-style: italic; border-bottom: 2px solid #e0d5b3; color: #4a3728; font-weight: 800; font-family: 'Georgia', serif; font-size: 1.4rem; line-height: 1.4;"></div>
+
+<main style="max-width: 950px; margin: 35px auto; padding: 0 25px; font-family: 'Georgia', serif; padding-bottom: 150px;">
+    <div style="background: #ffffff; border: 1px solid #dcd1b3; padding: 50px; box-shadow: 0 15px 50px rgba(0,0,0,0.1); border-radius: 5px; position: relative;">
+        <div id="q-text-display" style="font-size: 1.7rem; line-height: 1.8; font-weight: 900; color: #111; margin-bottom: 35px; padding-bottom: 20px; border-bottom: 2px solid #f0e6cc;"></div>
+        <div id="opt-grid-display" style="display: grid; gap: 20px;"></div>
+        <div id="analysis-panel" style="display: none; margin-top: 40px; padding: 30px; background: #fdfaf2; border-left: 10px solid #b8860b; border-radius: 0 5px 5px 0;">
+            <div style="font-weight: 900; color: #b8860b; margin-bottom: 12px; letter-spacing: 2px; font-size: 1.3rem;"> ABHISHA AI INSIGHTS</div>
+            <div id="analysis-text-content" style="font-size: 1.35rem; line-height: 1.9; color: #1b1b1b; font-weight: 500;"></div>
+            
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+        <button onclick="navigate(-1)" style="background: transparent; color: #1b1b1b; border: 3px solid #1b1b1b; padding: 18px 45px; cursor: pointer; font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; transition: 0.3s;">PREVIOUS</button>
+<button onclick="navigate(1)" style="background: #1b1b1b; color: #fdf6e3; border: none; padding: 18px 45px; cursor: pointer; font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">NEXT QUESTION</button>
+
+    </div>
+</main>
+<script>
+let qIdx = 0;
+let userAnswers = {};
+let performance = { correct: 0, attempted: 0, totalTime: 0, qStartTime: Date.now() };
+let totalSeconds = 0;
+let liveTimerInterval;
+
+const MOTIVATION = [
+
+  
+    "The prestige of the IAS is not in the power you wield, but in the millions of lives you are preparing to protect.",
+    "A district is not a collection of files; it is a pulse of a thousand stories that you must learn to read today.",
+    "The exam doesn't just test your memory of the Constitution; it tests your ability to remain constitutional under pressure.",
+    "Every hour spent in deep focus is a brick in the foundation of an administration that the people can finally trust.",
+    "You are not merely clearing a syllabus; you are cultivating the intellectual stamina required to lead a nation in crisis.",
+    "The difference between a candidate and an officer is the ability to see the 'why' behind the 'what' in every policy.",
+    "LBSNAA is not a destination for the lucky; it is a sanctuary for those who were disciplined enough to be consistent.",
+    "Your current solitude is the laboratory where you are synthesizing the courage to make difficult decisions in public.",
+    "The PDF list is a secular scripture that only records the names of those who treated their study table like a temple.",
+    "Revision is not a chore; it is the process of turning fragile information into an unbreakable weapon for the exam hall.",
+    "An officer's composure is born in the quiet moments when they chose to solve a problem rather than complain about it.",
+    "The weight of the pen you will one day use to sign orders is being balanced by the weight of the books you carry today.",
+    "Do not seek a path without obstacles; seek the mental fortitude to make every obstacle a stepping stone toward the Service.",
+    "Your parents’ sacrifices are the silent fuel in your lamp; do not let the light flicker because of a moment of distraction.",
+    "The exam hall is not a place to think; it is a place to execute the strategies you have mastered in the darkness of your room.",
+    "True leadership is the ability to govern your own impulses before you ever attempt to govern the impulses of a district.",
+    "The syllabus is a vast ocean, but the UPSC only rewards those who have the courage to dive deep into the core concepts.",
+    "A leader is a dealer in hope, but an administrator is a dealer in reality—start practicing your grip on facts today.",
+    "The blue-light vehicle is a symbol of service, not status; make sure your heart is ready for the responsibility before you get the keys.",
+    "Every mark you gain in a mock test is a testament to a distraction you ignored and a concept you finally conquered.",
+    "You are currently an apprentice to the State; treat every NCERT and every editorial as a direct instruction from your future self.",
+    "The hardest part of the journey is not the volume of information, but the silence of the nights when you doubt your own potential.",
+    "Success in the Civil Services is a marathon of the mind, where the only finish line that matters is the one in May 2026.",
+    "Be the officer who knows the law so well that they can use it to protect the person that everyone else has forgotten.",
+    "Your study desk is the first office of your career; manage it with the same integrity you would bring to a Secretariat.",
+    "The intellect can take you to the interview, but only your character can take you through the gates of the Academy.",
+    "Do not let the noise of the world's opinions drown out the quiet, steady rhythm of your own disciplined preparation.",
+    "A bureaucrat’s greatest asset is a clear head; protect your mental space from the clutter of social media and shallow trends.",
+    "The history of India is still being written, and there is a blank page waiting for the contribution of your specific leadership.",
+    "The 'Service' is not a title you achieve; it is a vow of duty that you begin to fulfill the moment you open your books today.",
+    "Every difficult question in the Prelims is an invitation to use the logic you have spent months sharpening in your solitude.",
+    "The quality of your current struggle is the best predictor of the quality of your future governance in the field.",
+    "Do not pray for an easy paper; pray for a mind so prepared that no question can shake your fundamental confidence.",
+    "The mirror in your room should show you a person who is slightly better, slightly wiser, and much more focused than yesterday.",
+    "Authority is a gift from the people; preparation is the work you do to prove that you are worthy of receiving that gift.",
+    "The complexity of the world demands an administrator who can find the simple truth hidden behind a mountain of data.",
+    "Focus is the art of saying 'not now' to the world so that you can say 'forever' to your dreams of serving the nation.",
+    "The ink on your fingertips is a badge of honor that shows you are willing to work for a future that most people only dream of.",
+    "History doesn't remember the candidates who almost made it; it remembers the officers who stayed until the job was done.",
+    "Your ambition is the spark, but your daily routine is the fire that will eventually light up the path to Mussoorie.",
+    "The State is a complex machine, and you are training to be the engineer who ensures it works for the benefit of the last man.",
+    "Excellence is not an act of brilliance on exam day; it is the result of a thousand small, boring decisions made correctly every day.",
+    "The silence of your room is not empty; it is full of the potential of the thousands of lives you will one day impact.",
+    "An officer is defined not by their rank, but by their ability to remain human while navigating the cold machinery of the State.",
+    "The UPSC is a test of your mental grit, asking you if you can keep your vision clear when the goal seems far away.",
+    "Do not compare your progress to others; the only competition that matters is the one between you and your own distractions.",
+    "Every paragraph of your notes is a conversation between your current effort and the officer you are destined to become.",
+    "The 'Final List' is a secular document that recognizes the most persistent souls in the Republic of India.",
+    "True power is the ability to stay calm when the situation demands panic; start building that stillness in your study sessions.",
+    "The journey to LBSNAA is a transformation of the soul, turning a student into a servant of the people through the fire of hard work.",
+    "Your notes are not just papers; they are the roadmap for your intellectual journey through the most difficult exam in the world.",
+    "The exam doesn't just evaluate your knowledge; it evaluates your ability to filter the essential from the irrelevant under a ticking clock.",
+    "Be a master of the basics, for the most complex administrative problems often have their roots in the most fundamental principles.",
+    "Your time is the most precious currency you have; don't spend it on people or things that don't respect your 2026 goal.",
+    "The academy is looking for individuals who have a fire in their belly and the discipline to keep that fire burning for decades.",
+    "An administrator must be a generalist with the curiosity of a child and the analytical mind of a seasoned scientist.",
+    "The path is narrow and the climb is steep, but the view from the top of the 'PDF' is the most beautiful sight you will ever see.",
+    "Stop waiting for the 'right mood' to study; an officer acts because of duty, not because they feel inspired by the weather.",
+    "The Constitution is not just a subject to be cleared; it is a philosophy to be lived by every single day of your career.",
+    "Your daily schedule is the blueprint of your destiny; if you want a different future, you must build a different today.",
+    "The world is full of spectators; be the player who stays on the field until the final whistle of the interview board.",
+    "Knowledge is potential power, but implementation is the kinetic energy that will move your rank from the bottom to the top.",
+    "The price of greatness is the sacrifice of 'normalcy'; embrace being different if it means being an officer in 2026.",
+    "Your identity is not defined by a single mock test, but by your resilience to keep going after every mistake you make.",
+    "The 'Service' is a marathon in a suit; you are training your mind today to handle the distance you will run tomorrow.",
+    "The morning breeze has secrets to tell you about the clarity of your goals—do not go back to sleep when destiny is calling.",
+    "Every sunset you spend with your books is a promise you are keeping to the person you promised to become.",
+    "The mind is the only weapon that becomes sharper with use; push your limits until the boundaries of the syllabus disappear.",
+    "Success is the slow, steady accumulation of invisible victories that finally become visible on the day of the results.",
+    "The UPSC is a test of your relationship with the truth; can you see the world as it is, rather than how you want it to be?",
+    "Your focus is the most powerful tool in your arsenal; keep it sharp, keep it steady, and keep it pointed at the target.",
+    "The library is a cathedral of human wisdom; enter it with the respect of a seeker and leave it with the mind of a leader.",
+    "Every hour of focus is a step toward the academy gate; don't let a moment of weakness make you lose your stride.",
+    "The State depends on the quality of your intellect; do not settle for 'good enough' when 'excellence' is what the people need.",
+    "Your legacy is being built right now, in the silence of your room, one paragraph and one concept at a time.",
+    "The 'Service' is not a job; it is a life-long commitment to the idea that you can leave the world better than you found it.",
+    "A clear mind is the most powerful tool in the administrative shed; keep yours polished through meditation and deep work.",
+    "The State exists to protect the individual, and you are training to be the guardian of that sacred and difficult promise.",
+    "Every day is a mock test of your character; if you can lead yourself today, you can lead a district tomorrow.",
+    "The only shortcut to LBSNAA is the long, hard road of discipline that everyone else is too afraid to take.",
+    "Your ambition is the spark that started this journey, but your work ethic is the fuel that will see it through to the end.",
+    "The 'Service' is a marathon; it doesn't matter how fast you start, it only matters that you never stop moving toward the finish.",
+    "The quality of your prep determines the quality of your future governance; do not cheat the people you haven't even met yet.",
+    "Do not be a victim of your circumstances; be the master of your fate and the captain of your intellectual ship.",
+    "The world is a book, and those who do not study the Civil Services read only the first few pages of how a nation works.",
+    "Justice is the insurance of the weak against the strong; you are the agent who will one day deliver that insurance.",
+    "Your potential is an untapped well of greatness; keep digging through the syllabus until you hit the water of true understanding.",
+    "The 'Blue Light' vehicle is just a piece of machinery; the officer inside is the living message of the Indian State.",
+    "A clear head and a steady heart are the only two things you need to navigate the storm of the UPSC preparation.",
+    "The Constitution is your only master, and the welfare of the people is your only destination—start walking today.",
+    "Every hour of deep work is a prayer for a better India; may your dedication be the answer that the country is waiting for.",
+    "The only limit to your impact is the size of your imagination and the depth of your commitment to the 2026 goal.",
+    "A leader is one who knows the way, goes the way, and then shows the way to those who are lost in the bureaucracy.",
+    "The power of 'yet' is the greatest tool in your mind; you may not be an officer today, but you are not done working YET.",
+    "Success is a habit that you must practice every morning before the rest of the world has even opened its eyes.",
+    "Your struggle is not a sign of failure; it is the origin story of the leader you are currently becoming.",
+    "The world is waiting for your specific contribution; do not keep the nation waiting because of a lack of focus.",
+    "Every sunset is a deadline met; every sunrise is a fresh opportunity to prove that you belong in the Service.",
+    "The 'Service' is a marathon in a suit; keep your pace steady and your eyes on the road to the Academy.",
+    
+];
+
+function initApp() {
+    document.getElementById('auth-overlay').style.display = 'flex';
+    document.getElementById('auth-overlay').style.opacity = '1';
+
+    const wmContainer = document.getElementById('wm-tiled-bg');
+    wmContainer.innerHTML = ''; 
+    for(let i=0; i<450; i++) {
+        const div = document.createElement('div');
+        div.style.cssText = "font-size: 1rem; font-weight: 900; color: #222; padding: 25px; white-space: nowrap;";
+        div.innerText = "ABHISHA AI";
+        wmContainer.appendChild(div);
+    }
+}
+
+function saveUser() {
+    const val = document.getElementById('name-input').value;
+    if (val.trim() !== "") {
+        const name = val.trim().toUpperCase();
+        document.getElementById('user-display-name').innerText = name;
+        
+        document.getElementById('welcome-msg').innerHTML = `
+            <div style="opacity: 0.5; font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 5px; font-family: serif; color: #b8860b;">
+                WELCOME TO ABHISHA AI BY ABHISHEK PATHAK
+            </div>
+            <div style="font-family: 'Georgia', serif; color: #fdf6e3; font-size: 3.5rem; font-weight: 900; text-transform: uppercase;">
+                ${name}
+            </div>
+        `;
+        
+        document.getElementById('auth-motivational-quote').innerText = MOTIVATION[Math.floor(Math.random() * MOTIVATION.length)];
+        document.getElementById('auth-overlay').style.display = 'none';
+        document.getElementById('greet-gate').style.display = 'flex';
+    }
+}
+
+function launchEngine() {
+    document.getElementById('greet-gate').style.display = 'none';
+    liveTimerInterval = setInterval(() => {
+        totalSeconds++;
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        document.getElementById('rt-timer').innerText = `${m}m ${s}s`;
+    }, 1000);
+    renderFolio();
+}
+
+function renderFolio() {
+    if (typeof QUESTIONS === 'undefined' || QUESTIONS.length === 0) return;
+    
+    const qData = QUESTIONS[qIdx];
+    
+    // Update Stats
+    const acc = performance.attempted > 0 ? Math.round((performance.correct/performance.attempted)*100) : 100;
+    document.getElementById('rt-accuracy').innerText = acc;
+    document.getElementById('rt-progress').innerText = `${qIdx + 1}/${QUESTIONS.length}`;
+    document.getElementById('quote-strip').innerText = `"${MOTIVATION[qIdx % MOTIVATION.length]}"`;
+
+    // Display Question
+    document.getElementById('q-text-display').innerHTML = qData.question;
+    const grid = document.getElementById('opt-grid-display');
+    const panel = document.getElementById('analysis-panel');
+    grid.innerHTML = '';
+    panel.style.display = 'none';
+
+    // Solution Logic
+    if (userAnswers[qIdx] !== undefined) {
+        panel.style.display = 'block';
+        const liveScore = (performance.correct * 2) - (performance.attempted - performance.correct) * 0.66;
+        const doubtUrl = `https://t.me/Learner59?text=${encodeURIComponent("Doubt in Q" + (qIdx + 1) + ": " + qData.question.replace(/<[^>]*>/g, '').substring(0, 50))}`;
+        
+        document.getElementById('analysis-text-content').innerHTML = 
+            `<div style="font-weight:900; color:#2e7d32; margin-bottom:10px;">LIVE SCORE: ${liveScore.toFixed(2)}</div>` + 
+            qData.solution_text + 
+            `<br><button onclick="window.open('${doubtUrl}')" style="margin-top:15px; background:#0088cc; color:white; border:none; padding:10px; cursor:pointer; font-weight:900;">ASK DOUBT ABHISHA AI</button>`;
+    }
+
+    // Render Options
+    [1, 2, 3, 4].forEach(n => {
+        const optText = qData[`option_${n}`];
+        if(!optText) return;
+
+        const btn = document.createElement('button');
+        btn.style.cssText = "text-align: left; padding: 25px 35px; border: 2px solid #dcd1b3; background: white; cursor: pointer; font-size: 1.4rem; font-family: 'Georgia', serif; font-weight: 600; transition: 0.2s;";
+        btn.innerHTML = `<span style="font-weight: 900; margin-right: 20px; color: #b8860b;">${String.fromCharCode(64+n)}.</span> ${optText}`;
+        
+        if (userAnswers[qIdx] !== undefined) {
+            btn.disabled = true;
+            if (n == qData.answer) {
+                btn.style.background = "#e8f5e9";
+                btn.style.border = "4px solid #2e7d32";
+            }
+            if (n == userAnswers[qIdx] && n != qData.answer) {
+                btn.style.background = "#ffebee";
+                btn.style.border = "4px solid #c62828";
+            }
+        } else {
+            btn.onclick = () => {
+                userAnswers[qIdx] = n;
+                performance.attempted++;
+                if(n == qData.answer) performance.correct++;
+                performance.totalTime += Math.round((Date.now() - performance.qStartTime)/1000);
+                performance.qStartTime = Date.now();
+                renderFolio(); 
+            };
+        }
+        grid.appendChild(btn);
+    });
+}
+
+function navigate(dir) {
+    const newIdx = qIdx + dir;
+    
+    if(newIdx >= 0 && newIdx < QUESTIONS.length) {
+        qIdx = newIdx;
+        performance.qStartTime = Date.now();
+        renderFolio();
+        window.scrollTo(0, 0);
+    } else if (newIdx >= QUESTIONS.length) {
+        showFinalReport();
+    }
+}
+
+function toggleFocusMode() {
+    const header = document.querySelector('header');
+    const quote = document.getElementById('quote-strip');
+    const bg = document.getElementById('wm-tiled-bg');
+    const isHidden = header.style.display === 'none';
+    header.style.display = isHidden ? 'flex' : 'none';
+    quote.style.display = isHidden ? 'block' : 'none';
+    bg.style.opacity = isHidden ? '0.25' : '0.05';
+}
+
+function showFinalReport() {
+    const name = document.getElementById('user-display-name').innerText;
+    const finalScore = (performance.correct * 2) - (performance.attempted - performance.correct) * 0.66;
+    if (liveTimerInterval) clearInterval(liveTimerInterval);
+
+    document.body.innerHTML = `
+        <div style="text-align:center; padding:60px 20px; font-family: 'Georgia', serif; background:#fdfcf8; min-height:100vh; color: #1b1b1b;">
+            <h1 style="color:#b8860b; letter-spacing: 3px; font-size: 2.5rem;">YOUR UPSC COMPANION ABHISHA AI TEST REPORT</h1>
+            <h2 style="margin-bottom:30px;">CANDIDATE: ${name}</h2>
+            <div style="background: white; max-width: 650px; margin: 0 auto; padding: 40px; border: 1px solid #dcd1b3; box-shadow: 0 15px 35px rgba(0,0,0,0.08);">
+                <div style="font-size:2.5rem; font-weight: 900; margin-bottom: 10px;">FINAL SCORE: <span style="color:#2e7d32">${finalScore.toFixed(2)}</span></div>
+                <div style="font-size: 1.3rem; margin: 30px 0; border-top: 1.5px solid #b8860b; border-bottom: 1.5px solid #b8860b; padding: 25px 10px;">
+                    ALL THE BEST FOR <span style="color: #b8860b; font-weight: bold;">UPSC CSE PRELIMS 2026</span>!
+                </div>
+                <button onclick="location.reload()" style="background:#1b1b1b; color:#b8860b; padding:18px 60px; border:none; cursor:pointer; font-weight: 900;">RETAKE TEST</button>
+            </div>
+        </div>
+    `;
+}
+</script>
+
+<script>
+/* data from Jinja */
+const QUESTIONS = [{"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48187", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII and III only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III only\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and III\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements about turmeric during the year 2022-23: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. India is the largest producer and exporter of turmeric in the world.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. More than 30 varieties of turmeric are grown in India.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Maharashtra, Telangana, Karnataka and Tamil Nadu are major turmeric producing States in India.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (d) I, II and III\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: India is the largest producer, consumer, and exporter of turmeric globally, contributing over 75% of global production in 2022-23.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: More than 30 varieties of turmeric are cultivated across India, reflecting the country\u0026#39;s diverse agro-climatic conditions.\u003c/li\u003e\r\n\t\u003cli\u003eStatement III is correct: Maharashtra, Telangana, Karnataka, and Tamil Nadu are among the top turmeric-producing states in India.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48188", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and III\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII and III only\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eWhich of the following are the evidences of the phenomenon of continental drift? \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e1. The belt of ancient rocks from Brazil coast matches with those from Western Africa.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. The gold deposits of Ghana are derived from the Brazil plateau when the two continents lay side by side.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. The Gondwana system of sediments from India is known to have its counterparts in six different landmasses of the Southern Hemisphere.\u003c/p\u003e\r\n\r\n\u003cp\u003eSelect the correct answer using the code given below:\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) I, II and III\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eAll three statements support the theory of Continental Drift:\u003c/li\u003e\r\n\t\u003cli\u003eStatement I : Ancient rock formations on the Brazilian coast match with those found in Western Africa, indicating they were once joined.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II: Gold deposits of Ghana are thought to be geologically linked to the Brazil plateau, suggesting the continents were once connected.\u003c/li\u003e\r\n\t\u003cli\u003eStatement III: The Gondwana sedimentary system in India has counterparts in South America, Africa, Madagascar, Antarctica, and Australia, supporting the supercontinent theory.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48189", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct and Statement II explains Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct but Statement II does not explain Statement I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is correct but Statement II is not correct\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is not correct but Statement II is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I:\u003cbr /\u003e\r\nThe amount of dust particles in the atmosphere is more in subtropical and temperate areas than in equatorial and polar regions.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II:\u003cbr /\u003e\r\nSubtropical and temperate areas have less dry winds.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) Statement I is correct but Statement II is not correct\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: Subtropical and temperate areas have more dust particles due to greater aridity, sparse vegetation, and frequent wind activity compared to equatorial and polar regions.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is incorrect: Subtropical and temperate areas generally have more dry winds, not less especially due to descending air in high-pressure belts (like the Horse Latitudes).\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "1", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48190", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct and Statement II explains Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct but Statement II does not explain Statement I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is correct but Statement II is not correct\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is not correct but Statement II is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I:\u003cbr /\u003e\r\nIn January, in the Northern Hemisphere, the isotherms bend equatorward while crossing the landmasses, and poleward while crossing the oceans.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II:\u003cbr /\u003e\r\nIn January, the air over the oceans is warmer than that over the landmasses in the Northern Hemisphere.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (a) Both Statement I and Statement II are correct and Statement II explains Statement I\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: In January, the isotherms (lines of equal temperature) in the Northern Hemisphere bend towards the Equator over land and towards the poles over oceans.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: This happens because oceans retain heat longer than land, making the air over oceans warmer than over land in winter.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II explains Statement I: The bending of isotherms is due to this temperature contrast between land and ocean.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48191", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement II and Statement III are correct and both of them explain Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement II and Statement III are correct but only one of them explains Statement I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly one of the Statements II and III is correct and that explains Statement I\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNeither Statement II nor Statement III is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I: In the context of effect of water on rocks, chalk is known as a very permeable rock - whereas clay is known as quite an impermeable or least permeable rock.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II: Chalk is porous and hence can absorb water.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement III: Clay is not at all porous.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) Only one of the Statements II and III is correct and that explains Statement I\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: Chalk is highly permeable, while clay is almost impermeable.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: Chalk is porous, allowing it to absorb and transmit water, which explains its permeability.\u003c/li\u003e\r\n\t\u003cli\u003eStatement III is incorrect: Clay is porous but not permeable - it has tiny pores but does not allow water to pass through easily due to low permeability.\u003c/li\u003e\r\n\t\u003cli\u003eTherefore, only Statement II is correct and it explains Statement I.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48192", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI, II and III\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII and III only\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Without the atmosphere, temperature would be well below freezing point everywhere on the Earth\u0026#39;s surface.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Heat absorbed and trapped by the atmosphere maintains our planet\u0026#39;s average temperature.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Atmosphere\u0026#39;s gases, like carbon dioxide, are particularly good at absorbing and trapping radiation.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) I, II and III\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eAll three statements are correct:\u003c/li\u003e\r\n\t\u003cli\u003eStatement I: Without the atmosphere, Earth would lose heat rapidly and remain well below freezing due to lack of insulation.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II: The atmosphere traps heat via the greenhouse effect, maintaining a stable and habitable average temperature.\u003c/li\u003e\r\n\t\u003cli\u003eStatement III: Greenhouse gases like CO2, CH4, and water vapor are effective at absorbing and trapping infrared radiation, contributing to Earth\u0026#39;s warmth.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48193", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement II and Statement III are correct and both of them explain Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement II and Statement III are correct but only one of them explains Statement I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly one of the Statements II and III is correct and that explains Statement I\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNeither Statement II nor Statement III is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I: Scientific studies suggest that a shift is taking place in the Earth\u0026#39;s rotation and axis.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II: Solar flares and associated coronal mass ejections bombarded the Earth\u0026#39;s outermost atmosphere with tremendous amount of energy.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement III: As the Earth\u0026#39;s polar ice melts, the water tends to move towards the equator.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (b) Both Statement II and Statement III are correct but only one of them explains Statement I\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eScientific studies have shown that Earth\u0026#39;s axis of rotation is shifting, a phenomenon known as polar wander.\u003c/li\u003e\r\n\t\u003cli\u003eSolar flares and coronal mass ejections do hit Earth\u0026#39;s magnetosphere and upper atmosphere with significant energy. However, these do not have a measurable influence on Earth\u0026#39;s axis or rotation.\u003c/li\u003e\r\n\t\u003cli\u003eWhen polar ice melts, the redistributed water changes the mass distribution on Earth. This mass movement towards the equator leads to a shift in the Earth\u0026#39;s rotational axis, affecting its spin characteristics.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48194", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly two\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly three\u0026nbsp;\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly four\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eAll the five\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following pairs: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003ePlant \u0026nbsp; \u0026nbsp; \u0026nbsp; \u0026nbsp; \u0026nbsp;Description\u0026nbsp;\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Cassava: Woody shrub\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Ginger: Herb with pseudostem\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Malabar spinach: Herbaceous climber\u003c/p\u003e\r\n\r\n\u003cp\u003eIV. Mint: Annual shrub\u003c/p\u003e\r\n\r\n\u003cp\u003eV. Papaya: Woody shrub\u003c/p\u003e\r\n\r\n\u003cp\u003eHow many of the above pairs are correctly matched?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (b) Only three\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eCassava: It is a woody shrub cultivated for its starchy tuberous roots.\u003c/li\u003e\r\n\t\u003cli\u003eGinger: It is a herb with a pseudostem formed from tightly packed leaf bases.\u003c/li\u003e\r\n\t\u003cli\u003eMalabar spinach: It is a herbaceous climber commonly grown for its edible leaves.\u003c/li\u003e\r\n\t\u003cli\u003eMint: Mint is a herbaceous perennial, not an annual shrub.\u003c/li\u003e\r\n\t\u003cli\u003ePapaya : Papaya is a giant herb and lacks true woody tissue, so it is not classified as a woody shrub.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "2", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48195", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and II\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eI and III\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNone of the above statements is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eWith reference to the planet Earth, consider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Rain forests produce more oxygen than that produced by oceans.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Marine phytoplankton and photosynthetic bacteria produce about 50% of world\u0026#39;s oxygen.\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. Well-oxygenated surface water contains several folds higher oxygen than that in atmospheric air.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above is/are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (b) II only\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eWhile rainforests do produce significant amounts of oxygen through photosynthesis, oceans especially through phytoplankton, algae, and photosynthetic bacteria contribute roughly 50-80% of Earth\u0026#39;s oxygen.\u003c/li\u003e\r\n\t\u003cli\u003eMarine phytoplankton and cyanobacteria (photosynthetic bacteria) are responsible for about 50% of global oxygen production, making them a critical part of Earth\u0026#39;s oxygen cycle.\u003c/li\u003e\r\n\t\u003cli\u003eWell-oxygenated surface water does contain dissolved oxygen, but its concentration is much lower than that of oxygen in atmospheric air.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48196", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eoth Statement I and Statement II are correct and Statement II explains Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct but Statement II does not explain Statement I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is correct but Statement II is not correct\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is not correct but Statement II is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I:\u003cbr /\u003e\r\nOf the two major ethanol producers in the world, i.e., Brazil and the United States of America, the former produces more ethanol than the latter.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II:\u003cbr /\u003e\r\nUnlike in the United States of America where corn is the principal feedstock for ethanol production, sugarcane is the principal feedstock for ethanol production in Brazil.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (d) Statement I is not correct but Statement II is correct\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is incorrect: The United States is actually the largest producer of ethanol in the world, followed by Brazil.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: In Brazil, the primary feedstock for ethanol production is sugarcane, whereas in the United States, it is predominantly corn.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48197", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u0026nbsp;I only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth I and II\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNeither I nor II\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eThe World Bank warned that India could become one of the first places where wet-bulb temperatures routinely exceed 35\u0026deg;C.\u0026nbsp;\u0026nbsp;\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the following statements best reflect(s) the implication of the above-said report? \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Peninsular India will most likely suffer from flooding, tropical cyclones and droughts.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. The survival of animals including humans will be affected as shedding of their body heat through perspiration becomes difficult.\u003c/p\u003e\r\n\r\n\u003cp\u003eSelect the correct answer using the code given below:\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) Both I and II\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: The World Bank and other climate reports have indicated that Peninsular India may face multiple extreme weather events like flooding, tropical cyclones, and droughts due to rising temperatures and changing climate patterns.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: Wet-bulb temperatures above 35\u0026deg;C pose a severe threat because the human body cannot effectively cool itself by sweating, which can lead to heat stress and mortality. This also applies to other animals.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48198", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eAll the five\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly four\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly three\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly two\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following countries: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. United Kingdom\u003c/p\u003e\r\n\r\n\u003cp\u003eII. Denmark\u003c/p\u003e\r\n\r\n\u003cp\u003eIII. New Zealand\u003c/p\u003e\r\n\r\n\u003cp\u003eIV. Australia\u003c/p\u003e\r\n\r\n\u003cp\u003eV. Brazil\u003c/p\u003e\r\n\r\n\u003cp\u003eHow many of the above countries have more than four time zones?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) Only three\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eThe United Kingdom, Denmark, and Brazil each have more than four time zones.\u003c/li\u003e\r\n\t\u003cli\u003eThe United Kingdom has multiple overseas territories spread globally, resulting in several time zones.\u003c/li\u003e\r\n\t\u003cli\u003eDenmark includes Greenland and the Faroe Islands, which adds multiple time zones.\u003c/li\u003e\r\n\t\u003cli\u003eBrazil spans several time zones across its large continental area.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "1", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48199", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u0026nbsp;I only\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eII only\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth I and II\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNeither I nor II\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eI. Anadyr in Siberia and Nome in Alaska are a few kilometers from each other, but when people are waking up and getting set for breakfast in these cities, it would be different days.\u003c/p\u003e\r\n\r\n\u003cp\u003eII. When it is Monday in Anadyr, it is Tuesday in Nome.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich of the statements given above is/are correct?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (a) I only\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eAnadyr (Russia) and Nome (Alaska, USA) are located close geographically, separated by the International Date Line. Because of the International Date Line, even though they are only a few kilometers apart, the calendar date differs between the two places.\u003c/li\u003e\r\n\t\u003cli\u003eStatement I is correct because people in these cities experience different calendar days while living close to each other.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is incorrect because when it is Monday in Anadyr, it is still Sunday (not Tuesday) in Nome, since Nome is west of the Date Line and thus behind by one day, not ahead.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "3", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48200", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u0026nbsp;Only one\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly two\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eAll the three\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNone\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following pairs: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e\u003cimg height=\"330\" src=\"https://appx-content-v2.classx.co.in/paperimages/1763053477_1763053477773449_thump.jpg\" width=\"1154\" /\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eIn how many of the above rows is the given information correctly matched?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (c) All the three\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eBotswana is famously rich in diamonds and is one of the world\u0026#39;s largest producers and exporters of gem-quality diamonds.\u003c/li\u003e\r\n\t\u003cli\u003eChile is the world\u0026#39;s largest producer of lithium, an essential resource for batteries and electric vehicles.\u003c/li\u003e\r\n\t\u003cli\u003eIndonesia is one of the leading producers of nickel, a key metal used in stainless steel and battery production.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "4", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48201", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly one\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eOnly two\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eAll the three\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eNone\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following pairs: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003e\u003cimg height=\"365\" src=\"https://appx-content-v2.classx.co.in/paperimages/1763053761_1763053761708834_thump.jpg\" width=\"1080\" /\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eIn how many of the above rows is the given information correctly matched?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (d) None\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eMallorca is part of Spain, not Italy. It is one of the Balearic Islands in the Mediterranean.\u003c/li\u003e\r\n\t\u003cli\u003eNormandy is a region in France, not Spain.\u003c/li\u003e\r\n\t\u003cli\u003eSardinia is an island region of Italy, not France.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}, {"answer": "1", "concept": "", "deleted": "0", "difficulty_level": "1", "directive": "", "exam": "", "id": "48202", "image_check": "0", "image_link_1": "", "image_link_2": "", "image_link_3": "", "negative_marks": "0.66", "option_1": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct and Statement II explains Statement I\u003c/p\u003e", "option_10": "", "option_2": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eBoth Statement I and Statement II are correct but Statement II does not explain Statement I\u003c/p\u003e", "option_3": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is correct but Statement II is not correct\u003c/p\u003e", "option_4": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eStatement I is not correct but Statement II is correct\u003c/p\u003e", "option_5": "", "option_6": "", "option_7": "", "option_8": "", "option_9": "", "option_image_1": "", "option_image_10": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "option_image_6": "", "option_image_7": "", "option_image_8": "", "option_image_9": "", "positive_marks": "2.00", "question": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003eConsider the following statements: \u003cstrong\u003e(UPSC Prelims 2025)\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement I: Some rare earth elements are used in the manufacture of flat television screens and computer monitors.\u003c/p\u003e\r\n\r\n\u003cp\u003eStatement II: Some rare earth elements have phosphorescent properties.\u003c/p\u003e\r\n\r\n\u003cp\u003eWhich one of the following is correct in respect of the above statements?\u003c/p\u003e", "question_heading": "", "question_type": "1", "question_ui_type": "1", "report_count": "0", "section_id": "305", "set_no": "1", "solution_heading": "Full Solution", "solution_image_1": "", "solution_image_2": "", "solution_text": "\u003cstyle\u003e*{overflow-wrap: break-word;} img {max-width:100% !important} \u003c/style\u003e\u003cp\u003e\u003cstrong\u003eExplanation: (a) Both Statement I and Statement II are correct and Statement II explains Statement I\u003c/strong\u003e\u003c/p\u003e\r\n\r\n\u003cul\u003e\r\n\t\u003cli\u003eStatement I is correct: Rare Earth Elements (REES) such as europium, terbium, and yttrium are essential components in manufacturing flat television screens and computer monitors. These elements are crucial in the functioning of LED and LCD technologies.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II is correct: Some REEs possess phosphorescent properties, which means they emit light when excited by electrons. For example, europium emits red light and terbium emits green light-key colours in display technologies.\u003c/li\u003e\r\n\t\u003cli\u003eStatement II explains Statement I: The phosphorescent property of REEs is the scientific reason they are used in screens and monitors.\u003c/li\u003e\r\n\t\u003cli\u003eThus, option (a) is the correct answer.\u003c/li\u003e\r\n\u003c/ul\u003e", "solution_video": "", "sortingparam": "0.00", "subject": "", "test_id": "467", "test_series_id": "19", "topic": ""}];
+const QUIZ_TITLE = "Indian \u0026 World Geography PYQ Test 3";
+
+let current = 0;
+let answers = {};            // { questionId: "1", ... }
+let seconds = 0;
+let isQuiz = false;
+let timerInterval = null;
+
+const el = id => document.getElementById(id);
+
+/* format mm:ss */
+function fmt(s){
+  const m = Math.floor(s/60);
+  const sec = s%60;
+  return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+
+/* Timer */
+function startTimer(){
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    seconds++;
+    el("timer").textContent = fmt(seconds);
+  },1000);
+}
+
+/* initialize */
+function init(){
+  el("qtotal").textContent = QUESTIONS.length;
+  renderQuestion(0);
+  startTimer();
+  attachListeners();
+  buildPalette();
+  highlightPalette();
+}
+
+/* render question */
+function renderQuestion(i){
+  current = i;
+  const q = QUESTIONS[i];
+  el("qindex").textContent = i+1;
+  el("qtext").innerHTML = q.question || "";
+  el("marking").innerHTML = `Marking: <span style="color:var(--success)">+${Number(q.correct_score ?? 1)}</span> / <span style="color:var(--danger)">-${Number(q.negative_score ?? 0)}</span>`;
+  const opts = el("options");
+  opts.innerHTML = "";
+  el("explanation").style.display = "none";
+
+  const keys = ["option_1","option_2","option_3","option_4","option_5"];
+  keys.forEach((k, idx) => {
+    if(!q[k]) return;
+    const div = document.createElement("div");
+    div.className = "opt";
+    div.innerHTML = `<div class="custom-radio" aria-hidden="true"></div><div style="flex:1">${q[k]}</div>`;
+    // click anywhere on option selects
+    div.addEventListener("click", () => selectOption(q, idx+1, div));
+    opts.appendChild(div);
+    // if previously answered, mark selected
+    const qid = q.id ?? i;
+    if(answers[qid] === String(idx+1)) div.classList.add("selected");
+  });
+
+  highlightPalette();
+}
+
+/* selecting option */
+function selectOption(q, val, div){
+  const qid = q.id ?? current;
+  answers[qid] = String(val);
+  // clear previous selections visually
+  Array.from(el("options").children).forEach(o => o.className = "opt");
+  div.classList.add("selected");
+  // immediate feedback in quiz mode
+  if(isQuiz) showFeedback(q, val);
+  highlightPalette();
+}
+
+/* show correct/wrong coloring and explanation */
+function showFeedback(q, val){
+  const opts = Array.from(el("options").children);
+  opts.forEach((o, idx) => {
+    o.classList.remove("correct","wrong");
+    const idx1 = idx+1;
+    if(String(q.answer) === String(idx1)){
+      o.classList.add("correct");
+    } else if(String(val) === String(idx1)){
+      o.classList.add("wrong");
+    }
+  });
+  if(q.solution_text){
+    el("explanation").innerHTML = `<strong>Explanation:</strong> ${q.solution_text}`;
+    el("explanation").style.display = "block";
+  }
+}
+
+/* Submit flow */
+function submitQuiz(){
+  // stop timer
+  if(timerInterval) clearInterval(timerInterval);
+
+  let correct = 0, wrong = 0, totalMarks = 0;
+  QUESTIONS.forEach((q, i) => {
+    const qid = q.id ?? i;
+    const ans = answers[qid];
+    const isCorrect = ans && String(ans) === String(q.answer);
+    if(isCorrect) correct++;
+    else if(ans) wrong++;
+    const cs = Number(q.correct_score ?? 1);
+    const ns = Number(q.negative_score ?? 0);
+    if(isCorrect) totalMarks += cs;
+    else if(ans) totalMarks -= ns;
+  });
+
+  const attempted = Object.keys(answers).length;
+  const unattempted = QUESTIONS.length - attempted;
+  const accuracy = attempted ? ((correct/attempted) * 100).toFixed(1) : "0.0";
+
+  // build review HTML
+  let reviewHTML = `<div class="card"><h3 style="color:var(--accent);margin:0 0 10px">Results Summary</h3>
+    <div class="stats">
+      <div class="stat"><h4>Correct</h4><p>${correct}</p></div>
+      <div class="stat"><h4>Wrong</h4><p>${wrong}</p></div>
+      <div class="stat"><h4>Unattempted</h4><p>${unattempted}</p></div>
+      <div class="stat"><h4>Accuracy</h4><p>${accuracy}%</p></div>
+      <div class="stat"><h4>Total Marks</h4><p>${totalMarks}</p></div>
+      <div class="stat"><h4>Time</h4><p>${fmt(seconds)}</p></div>
+    </div></div>`;
+
+  QUESTIONS.forEach((q,i)=>{
+    const qid = q.id ?? i;
+    const ans = answers[qid];
+    const isCorrect = ans && String(ans) === String(q.answer);
+    const cs = Number(q.correct_score ?? 1);
+    const ns = Number(q.negative_score ?? 0);
+
+    reviewHTML += `<div class="card"><div style="font-weight:700;margin-bottom:8px">Q${i+1}: ${q.question}</div>`;
+    ["option_1","option_2","option_3","option_4","option_5"].forEach((k,j)=>{
+      if(!q[k]) return;
+      const idx = j+1;
+      const isOptCorrect = String(idx) === String(q.answer);
+      const isUser = ans && String(idx) === String(ans);
+      let style = "padding:8px 10px;margin:6px 0;border-radius:8px;";
+      if(isOptCorrect) style += "border:2px solid var(--success);background:rgba(31,158,90,0.12);";
+      else if(isUser && !isOptCorrect) style += "border:2px solid var(--danger);background:rgba(200,45,63,0.12);";
+      else style += "border:1px solid #eee;background:#fafbfd;";
+      reviewHTML += `<div style="${style}">${q[k]}</div>`;
+    });
+    const score = isCorrect ? `<span style="color:var(--success)">+${cs}</span>` : (ans ? `<span style="color:var(--danger)">-${ns}</span>` : `<span style="color:var(--muted)">0</span>`);
+    reviewHTML += `<div style="margin-top:8px"><strong>Score:</strong> ${score}</div>`;
+    if(q.solution_text) reviewHTML += `<div class="explanation" style="display:block;margin-top:8px"><strong>Explanation:</strong> ${q.solution_text}</div>`;
+    reviewHTML += `</div>`;
+  });
+
+  el("results").innerHTML = reviewHTML;
+  el("results").style.display = "block";
+  el("quizCard").style.display = "none";
+  // hide bottom nav
+  el("floatBar").style.display = "none";
+
+  // replace header controls with results controls (Re-Attempt, Download, Print)
+  const header = el("headerControls");
+  header.innerHTML = "";
+  const left = document.createElement("div");
+  left.style.display = "flex";
+  left.style.alignItems = "center";
+  left.style.gap = "10px";
+  const title = document.createElement("h1");
+  title.textContent = QUIZ_TITLE;
+  left.appendChild(title);
+
+  const right = document.createElement("div");
+  right.style.display = "flex";
+  right.style.alignItems = "center";
+  right.style.gap = "10px";
+
+  const retry = document.createElement("button");
+  retry.className = "btn";
+  retry.textContent = "Re-Attempt";
+  retry.onclick = ()=> location.reload();
+
+  const dl = document.createElement("button");
+  dl.className = "btn";
+  dl.textContent = "Download";
+  dl.onclick = downloadResults;
+
+  const pr = document.createElement("button");
+  pr.className = "btn";
+  pr.textContent = "Print";
+  pr.onclick = ()=> window.print();
+
+  right.appendChild(retry);
+  right.appendChild(dl);
+  right.appendChild(pr);
+
+  header.appendChild(left);
+  header.appendChild(right);
+}
+
+/* Download current results page as .html named after quiz title */
+function downloadResults(){
+  const head = document.head.outerHTML;
+  const resultsHtml = el("results").outerHTML;
+  const pageHtml = `<!doctype html><html>${head}<body><div style="padding:20px;max-width:1000px;margin:auto">${resultsHtml}</div></body></html>`;
+  const blob = new Blob([pageHtml], {type:"text/html"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const safe = String(QUIZ_TITLE).replace(/[^a-z0-9]/gi,"_");
+  a.href = url;
+  a.download = `${safe}_results.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* attach DOM listeners */
+function attachListeners(){
+  el("nextBtn").addEventListener("click", ()=> { if(current < QUESTIONS.length-1) renderQuestion(current+1); });
+  el("prevBtn").addEventListener("click", ()=> { if(current > 0) renderQuestion(current-1); });
+  el("clearBtn").addEventListener("click", ()=> { delete answers[QUESTIONS[current].id ?? current]; renderQuestion(current); highlightPalette(); });
+
+  el("paletteBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    togglePalette();
+  });
+
+  el("submitBtn").addEventListener("click", ()=>{
+    const attempted = Object.keys(answers).length;
+    el("submitMsg").textContent = `You attempted ${attempted} of ${QUESTIONS.length}. Submit?`;
+    el("submitModal").style.display = "flex";
+  });
+
+  el("cancelSubmit").addEventListener("click", ()=> el("submitModal").style.display = "none");
+  el("confirmSubmit").addEventListener("click", ()=> { el("submitModal").style.display = "none"; submitQuiz(); });
+
+  el("modeToggle").addEventListener("click", ()=> {
+    el("modeToggle").classList.toggle("active");
+    isQuiz = el("modeToggle").classList.contains("active");
+    // re-render the current question so immediate behavior toggles
+    renderQuestion(current);
+  });
+
+  // close palette when clicking outside
+  document.addEventListener("click", (ev) => {
+    const pal = el("palette");
+    if(!pal) return;
+    if(pal.style.display === "flex"){
+      const viewBtn = el("paletteBtn");
+      if(ev.target !== pal && !pal.contains(ev.target) && ev.target !== viewBtn && !viewBtn.contains(ev.target)){
+        pal.style.display = "none";
+      }
+    }
+  });
+}
+
+/* Build palette buttons + summary */
+function buildPalette(){
+  const pal = el("palette");
+  pal.innerHTML = "";
+  for(let i=0;i<QUESTIONS.length;i++){
+    const b = document.createElement("button");
+    b.className = "qbtn";
+    b.textContent = i+1;
+    b.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      renderQuestion(i);
+      pal.style.display = "none";
+    });
+    pal.appendChild(b);
+  }
+  const summary = document.createElement("div");
+  summary.id = "palette-summary";
+  summary.style.marginTop = "8px";
+  pal.appendChild(summary);
+  highlightPalette();
+}
+
+/* color palette buttons and show summary */
+function highlightPalette(){
+  const pal = el("palette");
+  if(!pal) return;
+  const total = QUESTIONS.length;
+  const attempted = Object.keys(answers).length;
+  const notAttempted = total - attempted;
+  Array.from(pal.children).forEach((child, idx) => {
+    // skip summary
+    if(child.id === "palette-summary") return;
+    child.classList.remove("answered","current");
+    const qid = QUESTIONS[idx].id ?? idx;
+    if(idx === current) child.classList.add("current");
+    else if(answers[qid]) child.classList.add("answered");
+  });
+  const summary = el("palette-summary");
+  if(summary) summary.textContent = `Total: ${total} | Attempted: ${attempted} | Not Attempted: ${notAttempted}`;
+}
+
+/* toggle palette visibility */
+function togglePalette(){
+  const pal = el("palette");
+  if(pal.style.display === "flex") pal.style.display = "none";
+  else { pal.style.display = "flex"; highlightPalette(); }
+}
+
+/* start */
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
